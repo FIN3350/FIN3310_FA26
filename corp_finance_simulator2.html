@@ -1,0 +1,1757 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ridgeline Finance Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+:root {
+  color-scheme: light;
+  --paper: #f5f6f4;
+  --paper-2: #ffffff;
+  --paper-3: #eaeeeb;
+  --rule: #cfd6d1;
+  --rule-soft: #e1e6e2;
+  --ink: #16211c;
+  --ink-2: #4b5852;
+  --ink-3: #7b8781;
+  --ledger: #1f7a54;
+  --ledger-ink: #ffffff;
+  --ledger-tint: #e3f1ea;
+  --copper: #a45c22;
+  --copper-tint: #f6e9de;
+  --good: #1f7a54;
+  --warn: #b7791f;
+  --crit: #b3372f;
+  --crit-tint: #f8e5e3;
+  --series-1: #2a78d6;
+  --series-2: #eb6834;
+  --series-3: #1baf7a;
+  --focus: #2a78d6;
+  --shadow: 0 1px 2px rgba(22, 33, 28, .08), 0 8px 24px rgba(22, 33, 28, .06);
+  --display: "Fraunces", "Iowan Old Style", Georgia, serif;
+  --body: "IBM Plex Sans", "Helvetica Neue", Arial, sans-serif;
+  --mono: "IBM Plex Mono", "SFMono-Regular", Menlo, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #131917; --paper-2: #1b2320; --paper-3: #232d29; --rule: #34423c; --rule-soft: #2a3631;
+    --ink: #eef3f0; --ink-2: #b7c2bc; --ink-3: #85938c;
+    --ledger: #3fae7f; --ledger-ink: #0e1512; --ledger-tint: #1c3328;
+    --copper: #d7884a; --copper-tint: #3a2a1d;
+    --good: #3fae7f; --warn: #d9a441; --crit: #e07068; --crit-tint: #3d2422;
+    --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --focus: #3987e5;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #131917; --paper-2: #1b2320; --paper-3: #232d29; --rule: #34423c; --rule-soft: #2a3631;
+  --ink: #eef3f0; --ink-2: #b7c2bc; --ink-3: #85938c;
+  --ledger: #3fae7f; --ledger-ink: #0e1512; --ledger-tint: #1c3328;
+  --copper: #d7884a; --copper-tint: #3a2a1d;
+  --good: #3fae7f; --warn: #d9a441; --crit: #e07068; --crit-tint: #3d2422;
+  --series-1: #3987e5; --series-2: #d95926; --series-3: #199e70; --focus: #3987e5;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 8px 24px rgba(0,0,0,.3);
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--body); font-size: 15px; line-height: 1.5; -webkit-font-smoothing: antialiased; }
+h1, h2, h3 { font-family: var(--display); font-weight: 500; letter-spacing: -.01em; text-wrap: balance; margin: 0; }
+h1 { font-size: 1.9rem; line-height: 1.15; }
+h2 { font-size: 1.45rem; line-height: 1.2; }
+h3 { font-size: 1.1rem; }
+h4 { margin: 1rem 0 .35rem; font-size: .8rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); font-weight: 600; }
+p { margin: 0 0 .8rem; max-width: 68ch; }
+a { color: var(--ledger); }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.num, td, .cfstrip b, .stat-value, .ledger-line b { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+
+/* ---- frame ---- */
+.frame { display: grid; grid-template-columns: 272px minmax(0, 1fr); min-height: 100vh; }
+.side { background: var(--paper-2); border-right: 1px solid var(--rule); padding: 1.25rem 1rem; position: sticky; top: 0; height: 100vh; overflow-y: auto; display: flex; flex-direction: column; gap: 1rem; }
+.brand { padding: .25rem .5rem .75rem; border-bottom: 1px solid var(--rule-soft); }
+.brand .eyebrow { font-size: .7rem; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; }
+.brand h1 { font-size: 1.4rem; margin-top: .15rem; }
+.brand .course { font-size: .8rem; color: var(--ink-2); margin-top: .25rem; }
+.student { display: flex; flex-direction: column; gap: .3rem; padding: 0 .5rem; }
+.student label { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); font-weight: 600; }
+.student input { padding: .45rem .6rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); }
+nav { display: flex; flex-direction: column; gap: .15rem; }
+nav .group { font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); font-weight: 600; padding: .8rem .5rem .3rem; }
+nav button { display: grid; grid-template-columns: 2.6rem 1fr auto; align-items: center; gap: .5rem; width: 100%; text-align: left; background: none; border: 0; padding: .45rem .5rem; border-radius: 6px; cursor: pointer; color: var(--ink-2); }
+nav button:hover { background: var(--paper-3); }
+nav button.active { background: var(--ledger-tint); color: var(--ink); }
+nav button .ch { font-family: var(--mono); font-size: .72rem; color: var(--ink-3); }
+nav button .t { font-size: .88rem; line-height: 1.25; }
+nav button .dot { width: .6rem; height: .6rem; border-radius: 50%; border: 1.5px solid var(--rule); }
+nav button .dot.done { background: var(--good); border-color: var(--good); }
+nav button .dot.part { background: linear-gradient(90deg, var(--good) 50%, transparent 50%); border-color: var(--good); }
+.side .foot { margin-top: auto; font-size: .75rem; color: var(--ink-3); padding: 0 .5rem; }
+.side .foot button { background: none; border: 0; color: var(--ink-3); text-decoration: underline; cursor: pointer; padding: 0; }
+.main { padding: 2rem 2.5rem 4rem; max-width: 1100px; width: 100%; min-width: 0; }
+.btn.menu-toggle { display: none; }
+@media (max-width: 900px) {
+  .frame { grid-template-columns: minmax(0, 1fr); }
+  .side { position: fixed; z-index: 20; width: 272px; transform: translateX(-100%); transition: transform .2s; }
+  .side.open { transform: none; box-shadow: var(--shadow); }
+  .main { padding: 1.25rem 1rem 3rem; }
+  .btn.menu-toggle { display: inline-flex; margin-bottom: 1rem; }
+}
+
+/* ---- page header ---- */
+.pagehead { display: flex; flex-direction: column; gap: .35rem; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid var(--rule); }
+.pagehead .eyebrow { font-size: .72rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ledger); font-weight: 600; display: flex; gap: .75rem; }
+.pagehead .eyebrow span + span { color: var(--ink-3); }
+.pagehead .firm { color: var(--ink-2); font-size: .9rem; }
+
+/* ---- blocks ---- */
+.panel { background: var(--paper-2); border: 1px solid var(--rule-soft); border-radius: 8px; padding: 1.25rem 1.4rem; margin-bottom: 1.25rem; }
+.panel.tint { background: var(--ledger-tint); border-color: transparent; }
+.panel.copper { background: var(--copper-tint); border-color: transparent; }
+.panel h3 { margin-bottom: .6rem; }
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.grid3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+@media (max-width: 760px) { .grid2, .grid3 { grid-template-columns: 1fr; } }
+table.fin { width: 100%; border-collapse: collapse; font-size: .88rem; }
+table.fin caption { text-align: left; font-weight: 600; font-size: .78rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); padding: 0 0 .4rem; }
+table.fin th { text-align: left; font-weight: 400; color: var(--ink-2); padding: .22rem .4rem .22rem 0; border-bottom: 1px solid var(--rule-soft); }
+table.fin td { text-align: right; padding: .22rem 0 .22rem .4rem; border-bottom: 1px solid var(--rule-soft); }
+table.fin tr.sub th, table.fin tr.sub td { font-weight: 600; }
+table.fin tr.tot th, table.fin tr.tot td { font-weight: 600; border-top: 2px solid var(--rule); border-bottom: 0; }
+table.fin.small { margin-top: 1rem; }
+table.fin.small th { width: 25%; }
+.facts { margin: 0; padding-left: 1.1rem; }
+.facts li { margin: .25rem 0; }
+.cfstrip { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: .5rem; }
+.cfstrip div { border: 1px solid var(--rule); border-radius: 6px; padding: .4rem .7rem; min-width: 5.5rem; background: var(--paper); }
+.cfstrip span { display: block; font-size: .68rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); }
+.cfstrip b { font-weight: 500; }
+.wide { overflow-x: auto; }
+
+/* ---- questions ---- */
+.qlist { display: grid; gap: .6rem; }
+.q { display: grid; grid-template-columns: 1fr 12rem 6rem; gap: .75rem; align-items: center; padding: .55rem .75rem; border-radius: 6px; background: var(--paper); border: 1px solid var(--rule-soft); }
+.q label { font-size: .92rem; }
+.q .in { display: flex; align-items: center; gap: .4rem; }
+.q input { width: 100%; padding: .4rem .5rem; border: 1px solid var(--rule); border-radius: 5px; background: var(--paper-2); font-family: var(--mono); text-align: right; }
+.q .unit { font-size: .75rem; color: var(--ink-3); white-space: nowrap; }
+.q .mark { font-size: .78rem; font-weight: 600; text-align: right; }
+.q.ok { border-color: var(--good); }
+.q.ok .mark { color: var(--good); }
+.q.bad { border-color: var(--crit); }
+.q.bad .mark { color: var(--crit); }
+.q .sol { grid-column: 1 / -1; font-size: .85rem; color: var(--ink-2); border-top: 1px dashed var(--rule); padding-top: .4rem; }
+@media (max-width: 760px) { .q { grid-template-columns: 1fr; } .q .mark { text-align: left; } }
+.mcq { padding: .75rem; border-radius: 6px; background: var(--paper); border: 1px solid var(--rule-soft); margin-bottom: .6rem; }
+.mcq p { font-weight: 500; margin-bottom: .5rem; }
+.mcq .opts { display: grid; gap: .35rem; }
+.mcq .opts label { display: flex; gap: .55rem; align-items: flex-start; padding: .4rem .6rem; border-radius: 5px; border: 1px solid transparent; cursor: pointer; }
+.mcq .opts label:hover { background: var(--paper-3); }
+.mcq .opts label.correct { border-color: var(--good); background: var(--ledger-tint); }
+.mcq .opts label.wrong { border-color: var(--crit); background: var(--crit-tint); }
+.mcq .fb { margin-top: .5rem; font-size: .88rem; color: var(--ink-2); }
+.reflect textarea, .rationale textarea { width: 100%; min-height: 5rem; padding: .6rem .7rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); resize: vertical; }
+.actions { display: flex; gap: .6rem; flex-wrap: wrap; align-items: center; margin-top: 1rem; }
+.btn { display: inline-flex; align-items: center; gap: .4rem; padding: .55rem 1rem; border-radius: 6px; border: 1px solid var(--rule); background: var(--paper-2); cursor: pointer; font-weight: 500; }
+.btn:hover { background: var(--paper-3); }
+.btn.primary { background: var(--ledger); color: var(--ledger-ink); border-color: var(--ledger); }
+.btn.primary:hover { filter: brightness(1.08); }
+.btn.quiet { border-color: transparent; background: transparent; color: var(--ink-2); }
+.btn:disabled { opacity: .5; cursor: not-allowed; }
+.note { font-size: .85rem; color: var(--ink-2); }
+.badge { display: inline-block; font-size: .7rem; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; padding: .15rem .5rem; border-radius: 999px; background: var(--paper-3); color: var(--ink-2); }
+.badge.good { background: var(--ledger-tint); color: var(--good); }
+.badge.crit { background: var(--crit-tint); color: var(--crit); }
+.badge.warn { background: var(--copper-tint); color: var(--copper); }
+
+/* ---- stat tiles ---- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: .75rem; margin-bottom: 1.25rem; }
+.stat { background: var(--paper-2); border: 1px solid var(--rule-soft); border-radius: 8px; padding: .8rem .95rem; }
+.stat .stat-label { font-size: .7rem; text-transform: uppercase; letter-spacing: .08em; color: var(--ink-3); font-weight: 600; }
+.stat .stat-value { font-size: 1.45rem; font-weight: 500; line-height: 1.2; margin-top: .2rem; }
+.stat .stat-sub { font-size: .78rem; color: var(--ink-2); margin-top: .15rem; }
+.stat.up .stat-value { color: var(--good); }
+.stat.down .stat-value { color: var(--crit); }
+
+/* ---- capstone ---- */
+.yearbar { display: flex; gap: .4rem; margin-bottom: 1.25rem; flex-wrap: wrap; }
+.yearbar div { flex: 1; min-width: 6rem; padding: .5rem .7rem; border-radius: 6px; border: 1px solid var(--rule-soft); background: var(--paper-2); font-size: .8rem; color: var(--ink-3); }
+.yearbar div b { display: block; color: var(--ink); font-weight: 500; font-family: var(--mono); font-size: .85rem; }
+.yearbar div.now { border-color: var(--ledger); background: var(--ledger-tint); }
+.yearbar div.done { color: var(--ink-2); }
+.event { border-left: 4px solid var(--copper); padding-left: 1rem; }
+.projects { width: 100%; border-collapse: collapse; font-size: .88rem; }
+.projects th { text-align: left; font-size: .72rem; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); padding: .4rem .5rem; border-bottom: 1px solid var(--rule); }
+.projects td { padding: .55rem .5rem; border-bottom: 1px solid var(--rule-soft); vertical-align: top; }
+.projects td.name { font-family: var(--body); }
+.projects td.name small { display: block; color: var(--ink-3); }
+.projects .flows { font-size: .78rem; color: var(--ink-2); }
+.projects input[type=checkbox] { width: 1.1rem; height: 1.1rem; accent-color: var(--ledger); }
+.projects tr.chosen td { background: var(--ledger-tint); }
+.decide { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+.field { display: flex; flex-direction: column; gap: .3rem; }
+.field label { font-size: .78rem; font-weight: 600; color: var(--ink-2); }
+.field input, .field select { padding: .45rem .6rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); font-family: var(--mono); }
+.field select { font-family: var(--body); }
+.field small { color: var(--ink-3); font-size: .75rem; }
+.calc { display: grid; grid-template-columns: 1fr auto; gap: .75rem; align-items: end; }
+.calc input { width: 100%; padding: .45rem .6rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); font-family: var(--mono); }
+.calc-out { display: flex; gap: 1.25rem; flex-wrap: wrap; margin-top: .6rem; font-size: .9rem; }
+.calc-out span { color: var(--ink-3); font-size: .75rem; text-transform: uppercase; letter-spacing: .06em; display: block; }
+.ledger-line { display: flex; justify-content: space-between; padding: .2rem 0; border-bottom: 1px solid var(--rule-soft); font-size: .88rem; }
+.ledger-line.tot { font-weight: 600; border-top: 2px solid var(--rule); border-bottom: 0; }
+.ledger-line b { font-weight: 500; }
+.notes li { margin: .2rem 0; }
+
+/* ---- charts ---- */
+.chart { position: relative; }
+.chart svg { width: 100%; height: auto; display: block; }
+.chart .grid line { stroke: var(--rule-soft); }
+.chart .axis text { fill: var(--ink-3); font-size: 11px; font-family: var(--mono); }
+.chart .axis line { stroke: var(--rule); }
+.chart .s1 { stroke: var(--series-1); }
+.chart .s2 { stroke: var(--series-2); }
+.chart .s1f { fill: var(--series-1); }
+.chart .s2f { fill: var(--series-2); }
+.chart .lbl { fill: var(--ink-2); font-size: 11px; font-family: var(--body); }
+.chart .bar-pos { fill: var(--series-1); }
+.chart .bar-neg { fill: var(--series-2); }
+.chart .bar-avail { fill: none; stroke: var(--ink-3); stroke-dasharray: 3 3; }
+.legend { display: flex; gap: 1rem; font-size: .8rem; color: var(--ink-2); margin-bottom: .4rem; flex-wrap: wrap; }
+.legend i { display: inline-block; width: 12px; height: 3px; vertical-align: middle; margin-right: .35rem; border-radius: 2px; }
+.legend i.s1 { background: var(--series-1); }
+.legend i.s2 { background: var(--series-2); }
+.legend i.box { height: 10px; border: 1px dashed var(--ink-3); background: none; }
+.tip { position: absolute; pointer-events: none; background: var(--ink); color: var(--paper); padding: .35rem .55rem; border-radius: 5px; font-size: .75rem; font-family: var(--mono); white-space: nowrap; transform: translate(-50%, -120%); display: none; }
+.hit { fill: transparent; }
+
+/* ---- debrief ---- */
+.report { width: 100%; min-height: 16rem; font-family: var(--mono); font-size: .78rem; padding: .75rem; border: 1px solid var(--rule); border-radius: 6px; background: var(--paper); white-space: pre; overflow: auto; }
+.log { font-size: .85rem; }
+.log .entry { padding: .5rem 0; border-bottom: 1px solid var(--rule-soft); display: grid; grid-template-columns: 5.5rem 1fr; gap: .75rem; }
+.log .when { font-family: var(--mono); color: var(--ink-3); font-size: .75rem; }
+.verdict { padding: .6rem .8rem; border-radius: 6px; border: 1px solid var(--rule-soft); background: var(--paper); margin: .4rem 0; font-size: .9rem; }
+.verdict.miss { border-left: 3px solid var(--copper); }
+.verdict.hit { border-left: 3px solid var(--good); }
+.home-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+.home-steps .panel { margin: 0; }
+.home-steps .k { font-family: var(--display); font-size: 1.6rem; color: var(--ledger); line-height: 1; margin-bottom: .4rem; }
+@media (max-width: 760px) { .home-steps, .decide, .calc { grid-template-columns: 1fr; } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+@media print { .side, .actions, .menu-toggle { display: none; } .frame { display: block; } .main { max-width: none; padding: 0; } }
+
+
+/* ---- primers, how-to, review ---- */
+.kicker { display: block; font-size: .7rem; letter-spacing: .1em; text-transform: uppercase; color: var(--ledger); font-weight: 600; margin-bottom: .2rem; }
+details.panel > summary { list-style: none; cursor: pointer; display: grid; grid-template-columns: 1fr auto; align-items: end; column-gap: 1rem; }
+details.panel > summary::-webkit-details-marker { display: none; }
+details.panel > summary .kicker { grid-column: 1 / -1; }
+details.panel > summary h3 { margin: 0; }
+details.panel > summary::after { content: "Show"; grid-row: 2; grid-column: 2; font-size: .78rem; font-weight: 600; color: var(--ledger); padding: .2rem .6rem; border: 1px solid var(--ledger); border-radius: 999px; }
+details.panel[open] > summary::after { content: "Hide"; }
+.primer-body, .howto-body { margin-top: .9rem; }
+.primer-body p, .howto-body p { max-width: 72ch; }
+dl.formulas { display: grid; grid-template-columns: minmax(10rem, 15rem) 1fr; gap: .4rem 1.25rem; margin: 0; padding: .7rem .9rem; background: var(--paper-2); border-radius: 6px; }
+dl.formulas dt { color: var(--ink-2); font-size: .86rem; }
+dl.formulas dd { margin: 0; font-family: var(--mono); font-size: .82rem; }
+@media (max-width: 760px) { dl.formulas { grid-template-columns: 1fr; } dl.formulas dd { margin-bottom: .45rem; } }
+.example { margin-top: 1rem; padding: .9rem 1rem; background: var(--paper-2); border: 1px solid var(--rule-soft); border-radius: 6px; }
+.example .ex-title { margin: .1rem 0 .4rem; text-transform: none; letter-spacing: 0; font-size: .95rem; color: var(--ink); font-family: var(--display); font-weight: 500; }
+.example-setup { color: var(--ink-2); font-size: .9rem; }
+.example code { display: inline-block; font-family: var(--mono); font-size: .9rem; padding: .3rem .6rem; background: var(--paper); border: 1px solid var(--rule); border-radius: 5px; margin-bottom: .6rem; }
+ol.worked, ul.keys, ul.mistakes, ol.howto-steps, ol.howto-steps ul { margin: 0; padding-left: 1.25rem; }
+ol.worked li, ul.keys li, ul.mistakes li { margin: .3rem 0; max-width: 74ch; }
+ol.howto-steps > li { margin: .55rem 0; max-width: 78ch; }
+ol.howto-steps ul li { margin: .3rem 0; }
+ul.keys li { font-family: var(--mono); font-size: .8rem; }
+.btn.small { padding: .25rem .65rem; font-size: .8rem; }
+.projects .evald { display: block; margin-top: .3rem; }
+.projects .flows { font-family: var(--mono); white-space: nowrap; }
+.sel-sum { display: flex; flex-wrap: wrap; gap: .4rem 1.5rem; margin-top: .8rem; font-size: .86rem; padding: .6rem .8rem; background: var(--paper); border-radius: 6px; border: 1px solid var(--rule-soft); color: var(--ink-2); }
+.sel-sum b { font-family: var(--mono); font-weight: 500; color: var(--ink); }
+.sel-sum b.neg, .cashplan .neg b { color: var(--crit); }
+.calcbox { margin-top: 1.1rem; padding-top: .4rem; border-top: 1px solid var(--rule-soft); }
+.calc { grid-template-columns: 1fr auto auto; }
+.calc-out { align-items: flex-end; }
+.calc-out p { width: 100%; margin: 0; }
+.warn-text { color: var(--copper); }
+.muted { color: var(--ink-3); }
+.modal[hidden] { display: none; }
+.modal { position: fixed; inset: 0; z-index: 50; background: rgba(9, 14, 12, .55); display: flex; align-items: flex-start; justify-content: center; padding: 4vh 1rem; overflow-y: auto; }
+.modal-card { background: var(--paper-2); color: var(--ink); border-radius: 10px; box-shadow: var(--shadow); width: min(780px, 100%); padding: 1.5rem 1.6rem 1.25rem; }
+.modal-card h2 { margin-bottom: .35rem; }
+.cashplan { max-width: 520px; }
+.memo-quote { white-space: pre-wrap; background: var(--paper); border: 1px solid var(--rule-soft); border-radius: 6px; padding: .7rem .85rem; font-size: .9rem; }
+.checks { list-style: none; margin: 0; padding: 0; display: grid; gap: .4rem; }
+.checks li { display: grid; grid-template-columns: 4.2rem 1fr; gap: .6rem; align-items: baseline; padding: .5rem .7rem; border-radius: 6px; background: var(--paper); border: 1px solid var(--rule-soft); font-size: .9rem; }
+.checks .badge { text-align: center; }
+@media (max-width: 760px) { .modal-card { padding: 1.1rem 1rem; } .checks li { grid-template-columns: 1fr; } }
+@media (max-width: 760px) { .calc { grid-template-columns: 1fr; } .projects .flows { white-space: normal; } }
+.decide { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+.field input, .field select { width: 100%; min-width: 0; }
+@media (max-width: 760px) { .decide { grid-template-columns: minmax(0, 1fr); } }
+
+</style>
+
+<!-- Firebase SDK -->
+
+<style>
+#roomOverlay{position:fixed;inset:0;background:rgba(10,20,40,0.92);display:flex;align-items:center;justify-content:center;z-index:9999;font-family:'Inter',sans-serif;}
+#roomBox{background:#1a2535;border:1px solid #2d4060;border-radius:12px;padding:40px 48px;width:360px;max-width:90vw;text-align:center;}
+#roomBox h2{color:#e8f0fe;font-size:1.3rem;margin:0 0 6px;}
+#roomBox p{color:#8aa0c0;font-size:0.85rem;margin:0 0 24px;line-height:1.5;}
+#roomCodeInput{width:100%;box-sizing:border-box;padding:12px 16px;font-size:1.1rem;border:1px solid #2d4060;border-radius:8px;background:#0f1923;color:#e8f0fe;text-align:center;letter-spacing:2px;text-transform:uppercase;outline:none;margin-bottom:12px;}
+#roomCodeInput:focus{border-color:#4a7fd4;}
+#joinRoomBtn{width:100%;padding:12px;background:#2563eb;color:#fff;border:none;border-radius:8px;font-size:1rem;font-weight:600;cursor:pointer;}
+#joinRoomBtn:hover{background:#1d4ed8;}
+#roomStatus{margin-top:10px;font-size:0.82rem;min-height:18px;color:#f87171;}
+</style>
+</head>
+<body>
+
+<!-- Room Code Overlay -->
+<div id="roomOverlay">
+  <div id="roomBox">
+    <h2>Ridgeline Finance Lab</h2>
+    <p>Enter your group room code to sync with your partner.<br>Both partners use the same code.</p>
+    <input id="roomCodeInput" maxlength="20" placeholder="e.g. GROUP-3" autocomplete="off" spellcheck="false" />
+    <button id="joinRoomBtn" onclick="joinRoom()">Join Room</button>
+    <div id="roomStatus"></div>
+  </div>
+</div>
+
+<div class="frame">
+  <aside class="side" id="side">
+    <div class="brand"><div class="eyebrow">Corporate Finance · FIN 3310</div><h1>Ridgeline Finance Lab</h1><div class="course">Ross, <i>Fundamentals of Corporate Finance</i> · Kean University</div></div>
+    <div class="student"><label for="studentName">Your name</label><input id="studentName" placeholder="First Last" autocomplete="name"></div>
+    <nav id="nav"></nav>
+    <div class="foot">Work is saved in this browser only. <button id="resetAll">Start over</button></div>
+  </aside>
+  <div class="main" id="mainwrap">
+    <button class="btn menu-toggle" id="menuToggle">☰ Modules</button>
+    <div id="main"></div>
+  </div>
+</div>
+<script>
+/* ===== FinSim engine: shared finance math, scenario data, capstone company model ===== */
+var FS = (function () {
+  // ---------- core finance math ----------
+  function pv(fv, r, n) { return fv / Math.pow(1 + r, n); }
+  function fv(pv, r, n) { return pv * Math.pow(1 + r, n); }
+  function annuityPV(pmt, r, n) { return r === 0 ? pmt * n : pmt * (1 - Math.pow(1 + r, -n)) / r; }
+  function annuityFactor(r, n) { return annuityPV(1, r, n); }
+  function pmt(pvAmt, r, n) { return pvAmt / annuityFactor(r, n); }
+  function ear(apr, m) { return Math.pow(1 + apr / m, m) - 1; }
+  function npv(r, cfs) { return cfs.reduce(function (s, c, t) { return s + c / Math.pow(1 + r, t); }, 0); }
+  function irr(cfs) {
+    var lo = -0.99, hi = 10, f = function (r) { return npv(r, cfs); };
+    if (f(lo) * f(hi) > 0) return NaN;
+    for (var i = 0; i < 200; i++) { var mid = (lo + hi) / 2; if (f(lo) * f(mid) <= 0) hi = mid; else lo = mid; }
+    return (lo + hi) / 2;
+  }
+  function payback(cfs) {
+    var cum = cfs[0];
+    for (var t = 1; t < cfs.length; t++) { if (cum + cfs[t] >= 0) return t - 1 + (-cum) / cfs[t]; cum += cfs[t]; }
+    return NaN;
+  }
+  function discountedPayback(r, cfs) {
+    var d = cfs.map(function (c, t) { return c / Math.pow(1 + r, t); });
+    return payback(d);
+  }
+  function profitabilityIndex(r, cfs) { return (npv(r, cfs) - cfs[0]) / -cfs[0]; }
+  function bondPrice(face, couponRate, ytm, years, freq) {
+    var n = years * freq, c = face * couponRate / freq, y = ytm / freq;
+    return annuityPV(c, y, n) + pv(face, y, n);
+  }
+  function bondYTM(price, face, couponRate, years, freq) {
+    var lo = 0.0001, hi = 1;
+    for (var i = 0; i < 200; i++) { var mid = (lo + hi) / 2; if (bondPrice(face, couponRate, mid, years, freq) > price) lo = mid; else hi = mid; }
+    return (lo + hi) / 2;
+  }
+  function ddm(d1, r, g) { return d1 / (r - g); }
+
+  // ---------- capstone company model ----------
+  var CAP = {
+    years: 5,
+    taxRate: 0.21,
+    baseRate: 0.06,          // starting market yield on the firm's debt
+    requiredReturn: 0.10,    // discount rate for projects (cost of capital)
+    marketGrowth: 0.03,
+    cogsPct: 0.60,
+    fixedCost: 2000,
+    depRate: 0.10,           // straight-line % of gross fixed assets
+    basePE: 15,
+    start: { cash: 800, ar: 1200, inv: 1500, gfa: 8000, accDep: 2000, ap: 900, std: 0, ltd: 3000, shares: 1000, sales: 10000, retained: 4600, paidIn: 1000 },
+    events: [
+      { year: 1, title: 'Steady year', text: 'The market grows at trend. Rates are unchanged.', demand: 0, rateShift: 0, costShift: 0 },
+      { year: 2, title: 'The Fed tightens', text: 'Market interest rates rise 2 percentage points. New debt costs more and bond prices fall.', demand: 0, rateShift: 0.02, costShift: 0 },
+      { year: 3, title: 'Recession', text: 'Consumer demand falls 8% below trend. Cash discipline matters this year.', demand: -0.08, rateShift: 0, costShift: 0 },
+      { year: 4, title: 'Recovery', text: 'Demand rebounds 5% above trend and rates ease 1 point.', demand: 0.05, rateShift: -0.01, costShift: 0 },
+      { year: 5, title: 'Supplier squeeze', text: 'Input costs rise: cost of goods sold climbs to 63% of sales.', demand: 0, rateShift: 0, costShift: 0.03 }
+    ],
+    // project menu per year: cost, life, annual OCF, salvage (after-tax). Amounts in $000.
+    projects: {
+      1: [
+        { id: 'P1A', name: 'Automated packing line', cost: 1500, life: 5, ocf: 420, salvage: 100, note: 'Cuts labor in the warehouse.' },
+        { id: 'P1B', name: 'Flagship downtown store', cost: 2400, life: 5, ocf: 560, salvage: 300, note: 'High visibility, high rent.' },
+        { id: 'P1C', name: 'Quick-hit ad blitz', cost: 300, life: 2, ocf: 190, salvage: 0, note: 'Fast payback, short life.' }
+      ],
+      2: [
+        { id: 'P2A', name: 'E-commerce platform rebuild', cost: 1200, life: 5, ocf: 380, salvage: 0, note: 'Slow start, long tail.' },
+        { id: 'P2B', name: 'Refit older stores', cost: 900, life: 4, ocf: 250, salvage: 50, note: 'Modest returns.' },
+        { id: 'P2C', name: 'Acquire a rival brand', cost: 3000, life: 5, ocf: 700, salvage: 500, note: 'Big ticket, big risk.' }
+      ],
+      3: [
+        { id: 'P3A', name: 'Private-label product line', cost: 800, life: 5, ocf: 260, salvage: 0, note: 'Higher margins on house brand.' },
+        { id: 'P3B', name: 'Regional distribution hub', cost: 2000, life: 5, ocf: 470, salvage: 400, note: 'Shortens delivery times.' },
+        { id: 'P3C', name: 'Sponsorship deal', cost: 500, life: 3, ocf: 175, salvage: 0, note: 'Brand awareness.' }
+      ],
+      4: [
+        { id: 'P4A', name: 'Solar on the rooftops', cost: 700, life: 5, ocf: 200, salvage: 50, note: 'Lowers utility bills.' },
+        { id: 'P4B', name: 'Overseas expansion', cost: 2600, life: 5, ocf: 640, salvage: 200, note: 'New markets, new headaches.' },
+        { id: 'P4C', name: 'Customer loyalty app', cost: 400, life: 3, ocf: 160, salvage: 0, note: 'Repeat purchases.' }
+      ],
+      5: [
+        { id: 'P5A', name: 'Inventory forecasting AI', cost: 600, life: 4, ocf: 210, salvage: 0, note: 'Fewer stockouts.' },
+        { id: 'P5B', name: 'Second automated line', cost: 1400, life: 5, ocf: 330, salvage: 100, note: 'Same as year 1, pricier now.' },
+        { id: 'P5C', name: 'Buy the headquarters building', cost: 2200, life: 5, ocf: 380, salvage: 1500, note: 'Stops paying rent.' }
+      ]
+    },
+    credit: {
+      net30: { label: 'Net 30 (strict)', days: 30, salesLift: 0, badDebt: 0.003 },
+      net45: { label: 'Net 45 (standard)', days: 45, salesLift: 0.025, badDebt: 0.006 },
+      net60: { label: 'Net 60 (generous)', days: 60, salesLift: 0.04, badDebt: 0.012 }
+    },
+    inventory: {
+      lean: { label: 'Lean (30 days)', days: 30, salesLoss: 0.03, carry: 0.00 },
+      normal: { label: 'Normal (55 days)', days: 55, salesLoss: 0.00, carry: 0.00 },
+      heavy: { label: 'Heavy (80 days)', days: 80, salesLoss: 0.00, carry: 0.01 }
+    }
+  };
+
+  function projectCFs(p) {
+    var cfs = [-p.cost];
+    for (var t = 1; t <= p.life; t++) cfs.push(p.ocf + (t === p.life ? p.salvage : 0));
+    return cfs;
+  }
+  function projectStats(p, r) {
+    var cfs = projectCFs(p);
+    return { npv: npv(r, cfs), irr: irr(cfs), payback: payback(cfs), pi: (npv(r, cfs) + p.cost) / p.cost };
+  }
+
+  function initialState() {
+    var s = JSON.parse(JSON.stringify(CAP.start));
+    s.year = 0; s.rate = CAP.baseRate; s.debtRate = CAP.baseRate; s.cogsPct = CAP.cogsPct;
+    s.activeProjects = []; s.history = []; s.price = null; s.cumDiv = 0; s.projGFA = 0; s.projAccDep = 0;
+    s.equity = s.paidIn + s.retained;
+    var dep0 = s.gfa * CAP.depRate, cr = CAP.credit.net45, sales0 = s.sales * (1 + cr.salesLift);
+    var core0 = (sales0 * (1 - CAP.cogsPct) - CAP.fixedCost - dep0 - sales0 * cr.badDebt) * (1 - CAP.taxRate);
+    s.openingCore = core0;
+    var de0 = s.ltd / s.equity, cr0 = (s.cash + s.ar + s.inv) / s.ap;
+    s.price = valuation(s, core0, de0, cr0, 0).price;
+    s.openingPrice = s.price;
+    return s;
+  }
+  function round2(x) { return Math.round(x * 100) / 100; }
+
+  /* decision = { accept: [ids], finance: {bonds: $, stock: $, repay: $}, credit: 'net45', inventory: 'normal', dps: 0.5 } */
+  function simulateYear(state, decision) {
+    var s = JSON.parse(JSON.stringify(state));
+    var yr = s.year + 1;
+    var ev = CAP.events[yr - 1];
+    s.year = yr;
+    s.rate = round4(s.rate + ev.rateShift);
+    s.cogsPct = CAP.cogsPct + ev.costShift;
+    var log = { year: yr, event: ev, decision: decision, notes: [] };
+
+    // --- financing at the start of the year ---
+    var fin = decision.finance || {};
+    var bonds = Math.max(0, fin.bonds || 0), stock = Math.max(0, fin.stock || 0), repay = Math.max(0, fin.repay || 0);
+    if (bonds > 0) {
+      // new debt priced at the current market rate; blended rate on total LTD
+      var oldInt = s.ltd * s.debtRate;
+      s.ltd += bonds; s.cash += bonds;
+      s.debtRate = round4((oldInt + bonds * s.rate) / s.ltd);
+      log.notes.push('Issued $' + fmt0(bonds) + 'K of bonds at ' + pct(s.rate) + '.');
+    }
+    if (stock > 0) {
+      var issuePrice = s.price * 0.95; // 5% flotation cost
+      var newShares = stock / issuePrice;
+      s.shares += newShares; s.cash += stock; s.paidIn += stock;
+      log.notes.push('Issued ' + fmt0(newShares) + 'K new shares at $' + round2(issuePrice).toFixed(2) + ' (5% flotation cost).');
+    }
+    if (repay > 0) {
+      repay = Math.min(repay, s.ltd, Math.max(0, s.cash));
+      s.ltd -= repay; s.cash -= repay;
+      if (s.ltd === 0) s.debtRate = s.rate;
+      log.notes.push('Retired $' + fmt0(repay) + 'K of debt.');
+    }
+
+    // --- capital projects ---
+    var menu = CAP.projects[yr];
+    var accepted = [];
+    (decision.accept || []).forEach(function (id) {
+      var p = menu.filter(function (q) { return q.id === id; })[0];
+      if (!p) return;
+      accepted.push(p);
+      s.cash -= p.cost; s.projGFA += p.cost;
+      s.activeProjects.push({ id: p.id, name: p.name, start: yr, life: p.life, ocf: p.ocf, salvage: p.salvage, cost: p.cost, npv: projectStats(p, CAP.requiredReturn).npv });
+    });
+    log.accepted = accepted.map(function (p) { return p.id; });
+    log.projectValue = accepted.reduce(function (a, p) { return a + projectStats(p, CAP.requiredReturn).npv; }, 0);
+
+    // --- operations ---
+    var cr = CAP.credit[decision.credit || 'net45'], iv = CAP.inventory[decision.inventory || 'normal'];
+    var baseSales = s.sales * (1 + CAP.marketGrowth) * (1 + ev.demand);
+    var sales = baseSales * (1 + cr.salesLift) * (1 - iv.salesLoss);
+    s.sales = baseSales; // trend carries forward without policy effects
+    var cogs = sales * s.cogsPct;
+    var carry = sales * iv.carry;
+    var badDebt = sales * cr.badDebt;
+    var baseDep = s.gfa * CAP.depRate;
+    var projectOCF = 0, projectSalvage = 0, projectDep = 0;
+    s.activeProjects.forEach(function (p) {
+      var age = yr - p.start + 1;
+      if (age >= 1 && age <= p.life) { projectOCF += p.ocf; projectDep += p.cost / p.life; if (age === p.life) projectSalvage += p.salvage; }
+    });
+    // project OCF is after tax and includes its depreciation tax shield: OCF = EBIT_p(1-t) + Dep_p
+    var projectEBIT = (projectOCF - projectDep) / (1 - CAP.taxRate);
+    var dep = baseDep + projectDep;
+    var coreEBIT = sales - cogs - CAP.fixedCost - carry - badDebt - baseDep;
+    var ebit = coreEBIT + projectEBIT;
+    var interest = s.ltd * s.debtRate + s.std * (s.rate + 0.03);
+    var ebt = ebit - interest;
+    var tax = Math.max(0, ebt * CAP.taxRate);
+    var ni = ebt - tax;
+
+    // --- working capital & cash ---
+    var newAR = sales * cr.days / 365;
+    var newInv = cogs * iv.days / 365;
+    var newAP = cogs * 45 / 365;
+    var dWC = (newAR - s.ar) + (newInv - s.inv) - (newAP - s.ap);
+    s.ar = newAR; s.inv = newInv; s.ap = newAP;
+    var dps = Math.max(0, decision.dps || 0);
+    var dividends = dps * s.shares;
+    var cfo = ni + dep - dWC;
+    s.accDep += baseDep; s.projAccDep += projectDep;
+    // salvage: after-tax salvage comes in as cash; the fully depreciated asset leaves the books
+    s.cash += cfo - dividends + projectSalvage;
+    s.activeProjects.forEach(function (p) { if (yr - p.start + 1 === p.life) { s.projGFA -= p.cost; s.projAccDep -= p.cost; } });
+    // short-term debt: repay if cash allows, borrow if cash negative
+    if (s.std > 0 && s.cash > 300) { var rp = Math.min(s.std, s.cash - 300); s.std -= rp; s.cash -= rp; }
+    if (s.cash < 0) { s.std += -s.cash; log.notes.push('Cash ran short: the bank extended $' + fmt0(-s.cash) + 'K of emergency credit at ' + pct(s.rate + 0.03) + '.'); s.cash = 0; }
+    s.retained += ni - dividends;
+    s.cumDiv += dps;
+    var equity = s.paidIn + s.retained;
+    var nfa = (s.gfa - s.accDep) + (s.projGFA - s.projAccDep);
+    var totalAssets = s.cash + s.ar + s.inv + nfa;
+    var totalDebt = s.ltd + s.std;
+
+    // --- market valuation (DCF: capitalized core earnings + PV of running projects + net cash) ---
+    var eps = ni / s.shares;
+    var de = totalDebt / Math.max(equity, 1);
+    var curRatio = (s.cash + s.ar + s.inv) / Math.max(s.ap + s.std, 1);
+    var coreNOPAT = coreEBIT * (1 - CAP.taxRate) - s.std * (s.rate + 0.03) * (1 - CAP.taxRate);
+    var v = valuation(s, coreNOPAT, de, curRatio, yr);
+    s.price = v.price;
+    var pe = s.price / Math.max(eps, 0.01);
+
+    s.equity = equity;
+    var snap = {
+      year: yr, event: ev.title, sales: sales, cogs: cogs, fixed: CAP.fixedCost, carry: carry, badDebt: badDebt, dep: dep, projectEBIT: projectEBIT,
+      ebit: ebit, interest: interest, ebt: ebt, tax: tax, ni: ni, dividends: dividends, dps: dps, eps: eps,
+      cash: s.cash, ar: s.ar, inv: s.inv, nfa: nfa, gfa: s.gfa + s.projGFA, accDep: s.accDep + s.projAccDep, baseDep: baseDep, projectDep: projectDep, projectOCF: projectOCF, projectSalvage: projectSalvage, coreEBIT: coreEBIT, totalAssets: totalAssets, ap: s.ap, std: s.std, ltd: s.ltd, equity: equity,
+      shares: s.shares, price: s.price, pe: pe, rate: s.rate, marketR: v.r, coreValue: v.core, projPV: v.projPV, equityValue: v.equityValue, debtRate: s.debtRate, cfo: cfo, dWC: dWC, capex: accepted.reduce(function (a, p) { return a + p.cost; }, 0),
+      curRatio: curRatio, quick: (s.cash + s.ar) / Math.max(s.ap + s.std, 1), de: de, tie: ebit / Math.max(interest, 0.001), pm: ni / sales, roa: ni / totalAssets, roe: ni / Math.max(equity, 1),
+      dso: cr.days, dio: iv.days, projectValue: log.projectValue, accepted: log.accepted, notes: log.notes, decision: decision,
+      tsr: (s.price + s.cumDiv - s.openingPrice) / s.openingPrice, cumDiv: s.cumDiv
+    };
+    s.history.push(snap);
+    return s;
+  }
+  /* Market value of equity = core after-tax operating profit / (r - g)
+     + PV of remaining cash flows on projects already under way
+     + cash - debt.  r rises with market rates, leverage and weak liquidity. */
+  function valuation(s, coreNOPAT, de, curRatio, yr) {
+    var r = CAP.requiredReturn + 0.5 * (s.rate - CAP.baseRate);
+    if (de > 0.8) r += 0.03 * Math.min(de - 0.8, 4);
+    if (s.paidIn + s.retained <= 0) r += 0.05;
+    if (curRatio < 1.2) r += 0.01;
+    var g = CAP.marketGrowth;
+    var core = coreNOPAT / (r - g);
+    var projPV = 0;
+    s.activeProjects.forEach(function (p) {
+      var age = yr - p.start + 1; // years already completed (including this one)
+      for (var t = age + 1; t <= p.life; t++) projPV += (p.ocf + (t === p.life ? p.salvage : 0)) / Math.pow(1 + r, t - age);
+    });
+    var equityValue = core + projPV + s.cash - s.ltd - s.std;
+    return { r: r, core: core, projPV: projPV, equityValue: equityValue, price: round2(Math.max(0.5, equityValue / s.shares)) };
+  }
+  function round4(x) { return Math.round(x * 10000) / 10000; }
+  function fmt0(x) { return Math.round(x).toLocaleString('en-US'); }
+  function pct(x, d) { return (x * 100).toFixed(d == null ? 1 : d) + '%'; }
+
+  // score: total shareholder return over five years
+  function finalScore(state) {
+    var last = state.history[state.history.length - 1];
+    if (!last) return null;
+    var valueCreated = state.history.reduce(function (a, h) { return a + h.projectValue; }, 0);
+    var menuValue = 0, rejectedGood = [], acceptedBad = [];
+    state.history.forEach(function (h) {
+      CAP.projects[h.year].forEach(function (p) {
+        var v = projectStats(p, CAP.requiredReturn).npv;
+        var took = h.accepted.indexOf(p.id) >= 0;
+        if (v > 0) menuValue += v;
+        if (v > 0 && !took) rejectedGood.push({ year: h.year, p: p, npv: v });
+        if (v < 0 && took) acceptedBad.push({ year: h.year, p: p, npv: v });
+      });
+    });
+    return { price: last.price, cumDiv: last.cumDiv, tsr: last.tsr, valueCreated: valueCreated, menuValue: menuValue, rejectedGood: rejectedGood, acceptedBad: acceptedBad, opening: state.openingPrice };
+  }
+
+  return { pv: pv, fv: fv, annuityPV: annuityPV, annuityFactor: annuityFactor, pmt: pmt, ear: ear, npv: npv, irr: irr, payback: payback, discountedPayback: discountedPayback,
+    profitabilityIndex: profitabilityIndex, bondPrice: bondPrice, bondYTM: bondYTM, ddm: ddm, CAP: CAP, projectCFs: projectCFs, projectStats: projectStats, initialState: initialState, simulateYear: simulateYear, finalScore: finalScore, fmt0: fmt0, pct: pct };
+})();
+if (typeof module !== 'undefined') module.exports = FS;
+
+/* ===== Guided scenarios, in syllabus order (Ross, Fundamentals of Corporate Finance) =====
+   Answer keys are computed from the engine so the app and the instructor guide never disagree. */
+var SCENARIOS = (function (FS) {
+  var money = function (x, d) { return '$' + Number(x).toLocaleString('en-US', { minimumFractionDigits: d == null ? 0 : d, maximumFractionDigits: d == null ? 0 : d }); };
+  var N = { // Northfield Manufacturing, FY2025 ($000)
+    sales: 4800, cogs: 3100, dep: 320, ebit: 1380, interest: 180, ebt: 1200, tax: 252, ni: 948, div: 300, addRE: 648,
+    cash: 250, ar: 610, inv: 840, ca: 1700, nfa: 3900, ta: 5600, ap: 520, np: 380, cl: 900, ltd: 1800, eq: 2900
+  };
+  var IND = { cr: 2.4, qr: 1.3, tdr: 0.40, tie: 9.5, pm: 0.17, roa: 0.15, roe: 0.25, dso: 38 };
+  var B = { sales: 2000, ni: 160, payout: 0.40, assets: 1500, ap: 200, ltd: 500, eq: 800, g: 0.20 }; // Brightline Bakeries
+  var S8A = [-800, 250, 350, 450], S8B = [-300, 200, 150, 50];
+  var S9 = { cost: 900, life: 3, sales: 1200, costs: 700, t: 0.21, nwc: 80, salvage: 100, r: 0.12 };
+  var S10 = { p: 25, v: 15, fc: 150000, dep: 100000, inv: 300000, r: 0.12, n: 3, t: 0.21, base: 30000, worst: { q: 26000, p: 24 }, best: { q: 34000, p: 26 } };
+  var s9ocf = (S9.sales - S9.costs - S9.cost / S9.life) * (1 - S9.t) + S9.cost / S9.life;
+  var s9cfs = [-(S9.cost + S9.nwc), s9ocf, s9ocf, s9ocf + S9.nwc + S9.salvage * (1 - S9.t)];
+  var af = FS.annuityFactor(S10.r, S10.n);
+
+  function stmtTable() {
+    return '<div class="grid2">' +
+      '<table class="fin"><caption>Income statement, FY2025 ($000)</caption>' +
+      row('Sales', N.sales) + row('Cost of goods sold', N.cogs) + row('Depreciation', N.dep) + row('EBIT', N.ebit, 'sub') + row('Interest paid', N.interest) + row('Taxable income', N.ebt, 'sub') + row('Taxes (21%)', N.tax) + row('Net income', N.ni, 'tot') + row('Dividends', N.div) + row('Addition to retained earnings', N.addRE) + '</table>' +
+      '<table class="fin"><caption>Balance sheet, 12/31/2025 ($000)</caption>' +
+      row('Cash', N.cash) + row('Accounts receivable', N.ar) + row('Inventory', N.inv) + row('Total current assets', N.ca, 'sub') + row('Net fixed assets', N.nfa) + row('Total assets', N.ta, 'tot') +
+      row('Accounts payable', N.ap) + row('Notes payable', N.np) + row('Total current liabilities', N.cl, 'sub') + row('Long-term debt', N.ltd) + row('Total equity', N.eq) + row('Total liabilities & equity', N.ta, 'tot') + '</table></div>';
+  }
+  function row(l, v, cls) { return '<tr class="' + (cls || '') + '"><th>' + l + '</th><td>' + Number(v).toLocaleString('en-US') + '</td></tr>'; }
+  function cfStrip(cfs) { return '<div class="cfstrip">' + cfs.map(function (c, t) { return '<div><span>Year ' + t + '</span><b>' + (c < 0 ? '−' : '') + money(Math.abs(c)) + '</b></div>'; }).join('') + '</div>'; }
+
+  var LIST = [
+    {
+      id: 's1', ch: 'Ch 1', cslo: 'CSLO1', title: 'What is the CFO for?', firm: 'Northfield Manufacturing',
+      brief: '<p>You have just joined <b>Northfield Manufacturing</b>, a mid-sized maker of HVAC components, as a financial analyst. In your first week the CFO hands you three situations from the board packet and asks what kind of decision each one is, and what the firm should be trying to accomplish.</p>',
+      data: '<ul class="facts"><li>The board is debating whether to build a second plant in Ohio ($18 million).</li><li>The treasurer wants to refinance the bank loan with a 10-year bond issue.</li><li>The controller wants to tighten credit terms to customers from net 60 to net 30.</li><li>The CEO’s bonus is tied to this year’s reported net income.</li></ul>',
+      questions: [],
+      mcq: [
+        { id: 'q1', prompt: 'The second plant in Ohio is an example of which financial-management decision?', options: ['Capital budgeting', 'Capital structure', 'Working capital management'], correct: 0, feedback: 'Choosing which long-term assets to invest in is capital budgeting (Ross Ch 1). The bond refinancing is capital structure; the credit-terms change is working capital.' },
+        { id: 'q2', prompt: 'The goal of financial management, as the course defines it, is to:', options: ['Maximize this year’s net income', 'Maximize the current value per share of the existing stock', 'Minimize the firm’s costs', 'Maximize market share'], correct: 1, feedback: 'Accounting profit ignores timing and risk. The textbook goal is to maximize the current market value of the owners’ equity.' },
+        { id: 'q3', prompt: 'A bonus tied to reported net income creates what kind of problem?', options: ['A liquidity problem', 'An agency problem — managers may act in their own interest rather than the shareholders’', 'A tax problem'], correct: 1, feedback: 'When managers’ incentives diverge from shareholders’ interests, agency costs appear. A manager might cut R&D or delay maintenance to lift this year’s income.' }
+      ],
+      decision: { prompt: 'The controller argues that tightening credit terms will lift reported profit because bad-debt expense falls. As the analyst, what is the right test of whether to do it?', options: [
+        { label: 'Do it if net income rises', correct: false, feedback: 'Net income can rise while value falls: lost sales and lost customers do not always show up this year.' },
+        { label: 'Do it if the change increases the value of the firm to its shareholders, counting lost sales and freed-up cash', correct: true, feedback: 'Right. Every decision in this course gets the same test: does it raise the value of the equity?' },
+        { label: 'Do it if competitors do it', correct: false, feedback: 'Competitor behavior is information, not a decision rule.' }
+      ] },
+      reflection: 'Before doing any math this semester: in one or two sentences, what would convince you that a decision is good for the firm?'
+    },
+    {
+      id: 's2', ch: 'Ch 3', cslo: 'CSLO2', title: 'Read the statements like an analyst', firm: 'Northfield Manufacturing',
+      brief: '<p>Northfield’s bank has asked for a covenant review. The CFO wants a one-page ratio analysis against the industry averages and a verdict on where the firm is weakest. Work from the statements below. Enter ratios as decimals (2.10, not 210%) and percentages as percentages (19.75 for 19.75%).</p>',
+      data: stmtTable() + '<table class="fin small"><caption>Industry averages</caption><tr><th>Current ratio</th><td>2.40</td><th>Quick ratio</th><td>1.30</td></tr><tr><th>Total debt ratio</th><td>0.40</td><th>Times interest earned</th><td>9.5</td></tr><tr><th>Profit margin</th><td>17.0%</td><th>ROA</th><td>15.0%</td></tr><tr><th>ROE</th><td>25.0%</td><th>Days’ sales in receivables</th><td>38 days</td></tr></table>',
+      questions: [
+        { id: 'cr', label: 'Current ratio', unit: 'x', answer: N.ca / N.cl, tol: 0.01, solution: 'Current assets / current liabilities = 1,700 / 900 = ' + (N.ca / N.cl).toFixed(3) },
+        { id: 'qr', label: 'Quick ratio', unit: 'x', answer: (N.ca - N.inv) / N.cl, tol: 0.01, solution: '(Current assets − inventory) / current liabilities = (1,700 − 840) / 900 = ' + ((N.ca - N.inv) / N.cl).toFixed(3) },
+        { id: 'tdr', label: 'Total debt ratio', unit: 'x', answer: (N.ta - N.eq) / N.ta, tol: 0.01, solution: '(Total assets − equity) / total assets = (5,600 − 2,900) / 5,600 = ' + ((N.ta - N.eq) / N.ta).toFixed(3) },
+        { id: 'tie', label: 'Times interest earned', unit: 'x', answer: N.ebit / N.interest, tol: 0.02, solution: 'EBIT / interest = 1,380 / 180 = ' + (N.ebit / N.interest).toFixed(2) },
+        { id: 'pm', label: 'Profit margin', unit: '%', answer: N.ni / N.sales * 100, tol: 0.1, solution: 'Net income / sales = 948 / 4,800 = ' + (N.ni / N.sales * 100).toFixed(2) + '%' },
+        { id: 'roa', label: 'Return on assets', unit: '%', answer: N.ni / N.ta * 100, tol: 0.1, solution: 'Net income / total assets = 948 / 5,600 = ' + (N.ni / N.ta * 100).toFixed(2) + '%' },
+        { id: 'roe', label: 'Return on equity', unit: '%', answer: N.ni / N.eq * 100, tol: 0.1, solution: 'Net income / total equity = 948 / 2,900 = ' + (N.ni / N.eq * 100).toFixed(2) + '%. DuPont check: 19.75% × 0.857 × 1.931 = 32.69%.' },
+        { id: 'dso', label: 'Days’ sales in receivables', unit: 'days', answer: N.ar / (N.sales / 365), tol: 0.5, solution: 'Receivables / (sales / 365) = 610 / 13.15 = ' + (N.ar / (N.sales / 365)).toFixed(1) + ' days' }
+      ],
+      mcq: [],
+      decision: { prompt: 'Against the industry, where is Northfield weakest?', options: [
+        { label: 'Profitability — margins and returns trail the industry', correct: false, feedback: 'Look again: margin, ROA and ROE all beat the industry averages.' },
+        { label: 'Liquidity — current and quick ratios are well below the industry, and receivables are slow', correct: true, feedback: 'Right. Northfield is profitable but tight on liquidity: it has less cushion for current obligations and collects more slowly than peers. That is what the bank will flag.' },
+        { label: 'Leverage — the firm is dangerously overborrowed', correct: false, feedback: 'The debt ratio (0.48) is above the industry (0.40), but interest coverage of 7.7x is comfortable. Leverage is a note, not the headline.' }
+      ] },
+      reflection: 'Which ratio did you compute first, and why? Did the DuPont identity change how you read ROE?'
+    },
+    {
+      id: 's3', ch: 'Ch 4', cslo: 'CSLO3', title: 'Can Brightline afford to grow?', firm: 'Brightline Bakeries',
+      brief: '<p><b>Brightline Bakeries</b> wants to grow sales 20% next year. Assets and accounts payable move in proportion to sales; the profit margin (8%) and payout ratio (40%) stay the same. The owner asks a simple question: how much outside money will we need, and could we grow this fast without any?</p>',
+      data: '<table class="fin small"><caption>Brightline Bakeries, this year ($000)</caption><tr><th>Sales</th><td>2,000</td><th>Net income</th><td>160</td></tr><tr><th>Dividend payout</th><td>40%</td><th>Total assets (all vary with sales)</th><td>1,500</td></tr><tr><th>Accounts payable (varies with sales)</th><td>200</td><th>Long-term debt</th><td>500</td></tr><tr><th>Equity</th><td>800</td><th>Planned growth</th><td>20%</td></tr></table>',
+      questions: [
+        { id: 'efn', label: 'External financing needed at 20% growth', unit: '$000', answer: B.assets * B.g - B.ap * B.g - (B.ni / B.sales) * B.sales * (1 + B.g) * (1 - B.payout), tol: 1, solution: 'EFN = ΔAssets − ΔSpontaneous liabilities − Addition to retained earnings = 1,500(0.20) − 200(0.20) − 0.08 × 2,400 × 0.60 = 300 − 40 − 115.2 = 144.8' },
+        { id: 'igr', label: 'Internal growth rate', unit: '%', answer: (B.ni / B.assets * (1 - B.payout)) / (1 - B.ni / B.assets * (1 - B.payout)) * 100, tol: 0.1, solution: 'ROA = 160 / 1,500 = 10.67%; b = 0.60. IGR = ROA×b / (1 − ROA×b) = 0.064 / 0.936 = 6.84%' },
+        { id: 'sgr', label: 'Sustainable growth rate', unit: '%', answer: (B.ni / B.eq * (1 - B.payout)) / (1 - B.ni / B.eq * (1 - B.payout)) * 100, tol: 0.1, solution: 'ROE = 160 / 800 = 20%; b = 0.60. SGR = ROE×b / (1 − ROE×b) = 0.12 / 0.88 = 13.64%' }
+      ],
+      mcq: [],
+      decision: { prompt: 'The owner refuses to sell any new equity. What does 20% growth actually require?', options: [
+        { label: 'Nothing extra — the business funds itself', correct: false, feedback: 'Only up to the internal growth rate (6.8%) is self-funded.' },
+        { label: 'New borrowing beyond the current debt-equity ratio, a lower payout, or a slower growth target', correct: true, feedback: 'Right. 20% is above the sustainable growth rate (13.6%), so without new equity the firm must lever up, retain more, or grow slower.' },
+        { label: 'Only a higher dividend to keep the owner happy', correct: false, feedback: 'A higher payout lowers retained earnings and makes the gap worse.' }
+      ] },
+      reflection: 'If you were the banker, which of the three numbers would you look at first before lending to Brightline?'
+    },
+    {
+      id: 's4', ch: 'Ch 5', cslo: 'CSLO4', title: 'Saving for the new press', firm: 'Northfield Manufacturing',
+      brief: '<p>Northfield’s hydraulic press must be replaced in <b>6 years</b> at an expected cost of <b>$650,000</b>. The treasurer can earn <b>7%</b> a year on set-aside funds. Use your BA II Plus: N, I/Y, PV, PMT, FV.</p>',
+      data: '<table class="fin small"><tr><th>Future cost</th><td>$650,000</td><th>Years</th><td>6</td></tr><tr><th>Rate</th><td>7%</td><th>Cash available today</th><td>$350,000</td></tr></table>',
+      questions: [
+        { id: 'pv', label: 'Amount to set aside today to have $650,000 in 6 years', unit: '$', answer: FS.pv(650000, 0.07, 6), tol: 50, solution: 'PV = 650,000 / 1.07⁶ = ' + money(FS.pv(650000, 0.07, 6)) },
+        { id: 'rate', label: 'Rate needed if only $350,000 is set aside today', unit: '%', answer: (Math.pow(650 / 350, 1 / 6) - 1) * 100, tol: 0.05, solution: 'r = (650 / 350)^(1/6) − 1 = ' + ((Math.pow(650 / 350, 1 / 6) - 1) * 100).toFixed(2) + '%' },
+        { id: 'n', label: 'Years needed if $350,000 grows at 7%', unit: 'years', answer: Math.log(650 / 350) / Math.log(1.07), tol: 0.05, solution: 'n = ln(650 / 350) / ln(1.07) = ' + (Math.log(650 / 350) / Math.log(1.07)).toFixed(2) + ' years' },
+        { id: 'fv', label: 'What $350,000 grows to in 6 years at 7%', unit: '$', answer: FS.fv(350000, 0.07, 6), tol: 50, solution: 'FV = 350,000 × 1.07⁶ = ' + money(FS.fv(350000, 0.07, 6)) }
+      ],
+      mcq: [],
+      decision: { prompt: 'The press maker offers a deal: pay $500,000 today and receive the press in 6 years, instead of $650,000 then. Northfield can earn 7%. Take it?', options: [
+        { label: 'Yes — $500,000 is less than $650,000', correct: false, feedback: 'Those dollars sit six years apart. Compare them at the same date.' },
+        { label: 'No — the present value of $650,000 in 6 years at 7% is about $433,000, so prepaying $500,000 costs more', correct: true, feedback: 'Right. A dollar today is worth more than a dollar later; the prepayment only wins if the rate you can earn falls below about 4.5%.' },
+        { label: 'Yes — it locks in the price against inflation', correct: false, feedback: 'The $650,000 quote is already the expected future price. Price certainty is worth something, but not $67,000.' }
+      ] },
+      reflection: 'Which calculator keys did you use for each part? Where did a sign error or a wrong N trip you up?'
+    },
+    {
+      id: 's5', ch: 'Ch 6', cslo: 'CSLO4', title: 'Loan or lease the forklifts?', firm: 'Northfield Manufacturing',
+      brief: '<p>Northfield needs <b>$400,000</b> of forklifts. Bank loan: <b>6% APR, monthly payments over 5 years</b>. Lease: <b>$8,000 a month for 60 months</b>, paid at the end of each month. A second bank quotes 5.9% APR compounded daily. Separately, the CFO asks what a preferred share paying $5 a year forever is worth if investors want 8%.</p>',
+      data: '<table class="fin small"><tr><th>Loan amount</th><td>$400,000</td><th>Loan APR</th><td>6%, monthly</td></tr><tr><th>Term</th><td>60 months</td><th>Lease payment</th><td>$8,000 / month</td></tr><tr><th>Alt. quote</th><td>5.9% APR, daily</td><th>Preferred dividend</th><td>$5 / yr at 8%</td></tr></table>',
+      questions: [
+        { id: 'pmt', label: 'Monthly loan payment', unit: '$', answer: FS.pmt(400000, 0.06 / 12, 60), tol: 1, solution: 'PMT = 400,000 / [(1 − 1.005⁻⁶⁰) / 0.005] = ' + money(FS.pmt(400000, 0.06 / 12, 60), 2) },
+        { id: 'ear', label: 'Effective annual rate on the 6% monthly loan', unit: '%', answer: FS.ear(0.06, 12) * 100, tol: 0.01, solution: 'EAR = (1 + 0.06/12)¹² − 1 = ' + (FS.ear(0.06, 12) * 100).toFixed(3) + '%' },
+        { id: 'ear2', label: 'Effective annual rate on 5.9% compounded daily', unit: '%', answer: FS.ear(0.059, 365) * 100, tol: 0.01, solution: 'EAR = (1 + 0.059/365)³⁶⁵ − 1 = ' + (FS.ear(0.059, 365) * 100).toFixed(3) + '% — lower than the 6% monthly loan despite more frequent compounding.' },
+        { id: 'lease', label: 'Present value of the lease payments at 6% APR monthly', unit: '$', answer: FS.annuityPV(8000, 0.005, 60), tol: 50, solution: 'PV = 8,000 × [(1 − 1.005⁻⁶⁰) / 0.005] = ' + money(FS.annuityPV(8000, 0.005, 60)) },
+        { id: 'perp', label: 'Value of the preferred share', unit: '$', answer: 5 / 0.08, tol: 0.05, solution: 'Perpetuity: PV = C / r = 5 / 0.08 = $62.50' }
+      ],
+      mcq: [],
+      decision: { prompt: 'Loan or lease?', options: [
+        { label: 'Lease — $8,000 a month is a smaller number than the loan payment', correct: false, feedback: 'The lease payment is larger than the loan payment ($7,733). And the right comparison is present value, not the monthly figure.' },
+        { label: 'Loan — the lease has a present value of about $413,800, more than the $400,000 the loan finances', correct: true, feedback: 'Right. Discounted at the same rate, the lease costs about $13,800 more. (In practice tax and maintenance terms would also matter.)' },
+        { label: 'Take the daily-compounding quote because daily compounding is always cheaper', correct: false, feedback: 'More frequent compounding raises the EAR for a given APR; it happens to be cheaper here only because the APR is lower.' }
+      ] },
+      reflection: 'Explain in your own words why APR and EAR differ, and which one you should compare across offers.'
+    },
+    {
+      id: 's6', ch: 'Ch 7', cslo: 'CSLO5', title: 'Pricing the Northfield bond issue', firm: 'Northfield Manufacturing',
+      brief: '<p>Northfield plans to issue <b>10-year bonds</b>, <b>$1,000 face</b>, <b>6% coupon paid semiannually</b>. Similar bonds currently yield <b>7%</b>. The treasurer also holds an older Northfield bond: 5.5% semiannual coupon, 8 years left, trading at <b>$950</b>.</p>',
+      data: '<table class="fin small"><tr><th>New issue</th><td>10 yr, 6% semiannual, $1,000 face</td><th>Market yield</th><td>7%</td></tr><tr><th>Old bond</th><td>8 yr, 5.5% semiannual</td><th>Old bond price</th><td>$950</td></tr></table>',
+      questions: [
+        { id: 'p7', label: 'Price of the new bond if it yields 7%', unit: '$', answer: FS.bondPrice(1000, 0.06, 0.07, 10, 2), tol: 0.5, solution: 'N = 20, I/Y = 3.5, PMT = 30, FV = 1,000 → PV = ' + money(FS.bondPrice(1000, 0.06, 0.07, 10, 2), 2) + ' (a discount bond: coupon < yield)' },
+        { id: 'p5', label: 'Price of the new bond if yields fall to 5%', unit: '$', answer: FS.bondPrice(1000, 0.06, 0.05, 10, 2), tol: 0.5, solution: 'N = 20, I/Y = 2.5, PMT = 30, FV = 1,000 → PV = ' + money(FS.bondPrice(1000, 0.06, 0.05, 10, 2), 2) + ' (premium)' },
+        { id: 'ytm', label: 'Yield to maturity on the old bond at $950', unit: '%', answer: FS.bondYTM(950, 1000, 0.055, 8, 2) * 100, tol: 0.03, solution: 'N = 16, PV = −950, PMT = 27.50, FV = 1,000 → I/Y = ' + (FS.bondYTM(950, 1000, 0.055, 8, 2) * 50).toFixed(3) + '% per half-year, YTM = ' + (FS.bondYTM(950, 1000, 0.055, 8, 2) * 100).toFixed(2) + '%' },
+        { id: 'cy', label: 'Current yield on the old bond', unit: '%', answer: 55 / 950 * 100, tol: 0.02, solution: 'Annual coupon / price = 55 / 950 = ' + (55 / 950 * 100).toFixed(2) + '%' }
+      ],
+      mcq: [],
+      decision: { prompt: 'The treasurer expects rates to rise next year and is choosing between a 5-year and a 20-year issue. Which statement is right?', options: [
+        { label: 'Issue the 20-year bond now: its price is far more sensitive to rate changes, so locking in today’s coupon for longer protects the firm if rates rise', correct: true, feedback: 'Right. Interest-rate risk rises with maturity (and falls with coupon). Issuing long today locks in the cost; waiting or going short means refinancing at higher rates.' },
+        { label: 'Wait a year: bonds get cheaper when rates rise, so Northfield will pay less', correct: false, feedback: 'Cheaper for buyers means more expensive for the issuer: a higher yield is a higher borrowing cost.' },
+        { label: 'Maturity does not affect price sensitivity; only the coupon does', correct: false, feedback: 'Both matter. Longer maturity and lower coupon each increase interest-rate risk.' }
+      ] },
+      reflection: 'Which direction did each price move relative to $1,000, and why? State the rule in one sentence.'
+    },
+    {
+      id: 's7', ch: 'Ch 8', cslo: 'CSLO5', title: 'What is Northfield stock worth?', firm: 'Northfield Manufacturing',
+      brief: '<p>Northfield just paid a dividend of <b>$2.00</b> per share. Investors require <b>11%</b>. Analysts expect dividends to grow <b>5%</b> a year forever. A bullish analyst instead expects <b>20% growth for two years</b>, then 5% forever. The stock trades at <b>$40</b>.</p>',
+      data: '<table class="fin small"><tr><th>D₀</th><td>$2.00</td><th>Required return</th><td>11%</td></tr><tr><th>Long-run growth</th><td>5%</td><th>Bull case</th><td>20% for 2 years, then 5%</td></tr><tr><th>Market price</th><td>$40.00</td><td></td><td></td></tr></table>',
+      questions: [
+        { id: 'p0', label: 'Value per share under constant 5% growth', unit: '$', answer: 2.1 / 0.06, tol: 0.05, solution: 'P₀ = D₁ / (R − g) = 2.00 × 1.05 / (0.11 − 0.05) = $35.00' },
+        { id: 'bull', label: 'Value per share under the bull case', unit: '$', answer: 2.4 / 1.11 + (2.88 + 3.024 / 0.06) / (1.11 * 1.11), tol: 0.1, solution: 'D₁ = 2.40, D₂ = 2.88, D₃ = 3.024. P₂ = 3.024 / 0.06 = 50.40. P₀ = 2.40/1.11 + (2.88 + 50.40)/1.11² = ' + money(2.4 / 1.11 + (2.88 + 3.024 / 0.06) / (1.11 * 1.11), 2) },
+        { id: 'req', label: 'Return the market is implying at $40 (constant 5% growth)', unit: '%', answer: (2.1 / 40 + 0.05) * 100, tol: 0.02, solution: 'R = D₁ / P₀ + g = 2.10 / 40 + 0.05 = 10.25%' },
+        { id: 'dy', label: 'Dividend yield at $40', unit: '%', answer: 2.1 / 40 * 100, tol: 0.02, solution: 'D₁ / P₀ = 2.10 / 40 = 5.25%' }
+      ],
+      mcq: [],
+      decision: { prompt: 'Your best estimate is constant 5% growth. At $40, the stock is:', options: [
+        { label: 'Undervalued — buy', correct: false, feedback: 'Your model says $35. At $40 the market is paying for growth you do not believe in.' },
+        { label: 'Overvalued relative to your $35 estimate; the market is pricing in faster growth or a lower required return', correct: true, feedback: 'Right. Either the market expects something like the bull case, or it demands a lower return (10.25%) than you do. Your job is to say which assumption you disagree with.' },
+        { label: 'Fairly valued — the dividend yield is attractive', correct: false, feedback: 'Dividend yield alone is not a valuation.' }
+      ] },
+      reflection: 'Which input moved the value the most — growth or required return? What does that tell you about stock-price sensitivity?'
+    },
+    {
+      id: 's8', ch: 'Ch 9', cslo: 'CSLO6', title: 'Two projects, one budget', firm: 'Northfield Manufacturing',
+      brief: '<p>Northfield can take <b>one</b> of two mutually exclusive projects. Required return: <b>10%</b>. Project A automates a production line; Project B is a smaller marketing push. Compute each criterion, then choose.</p>',
+      data: '<h4>Project A ($000)</h4>' + cfStrip(S8A) + '<h4>Project B ($000)</h4>' + cfStrip(S8B),
+      questions: [
+        { id: 'npva', label: 'NPV of A', unit: '$000', answer: FS.npv(0.10, S8A), tol: 0.5, solution: 'NPV = −800 + 250/1.1 + 350/1.1² + 450/1.1³ = ' + FS.npv(0.10, S8A).toFixed(2) },
+        { id: 'npvb', label: 'NPV of B', unit: '$000', answer: FS.npv(0.10, S8B), tol: 0.5, solution: 'NPV = −300 + 200/1.1 + 150/1.1² + 50/1.1³ = ' + FS.npv(0.10, S8B).toFixed(2) },
+        { id: 'irra', label: 'IRR of A', unit: '%', answer: FS.irr(S8A) * 100, tol: 0.1, solution: 'CF0 = −800, C01 = 250, C02 = 350, C03 = 450 → IRR = ' + (FS.irr(S8A) * 100).toFixed(2) + '%' },
+        { id: 'irrb', label: 'IRR of B', unit: '%', answer: FS.irr(S8B) * 100, tol: 0.1, solution: 'CF0 = −300, C01 = 200, C02 = 150, C03 = 50 → IRR = ' + (FS.irr(S8B) * 100).toFixed(2) + '%' },
+        { id: 'pba', label: 'Payback period of A', unit: 'years', answer: FS.payback(S8A), tol: 0.03, solution: 'After 2 years: 600 recovered, 200 to go, year-3 flow 450 → 2 + 200/450 = ' + FS.payback(S8A).toFixed(2) + ' years' },
+        { id: 'pib', label: 'Profitability index of B', unit: 'x', answer: FS.profitabilityIndex(0.10, S8B), tol: 0.01, solution: 'PI = PV of inflows / cost = (NPV + 300) / 300 = ' + FS.profitabilityIndex(0.10, S8B).toFixed(3) }
+      ],
+      mcq: [],
+      decision: { prompt: 'Which project should Northfield take?', options: [
+        { label: 'B — higher IRR, faster payback, higher profitability index', correct: false, feedback: 'All three favor B, and all three are misleading for mutually exclusive projects of different scale. B earns a higher rate on a much smaller amount.' },
+        { label: 'A — higher NPV; for mutually exclusive projects NPV is the criterion that measures value added', correct: true, feedback: 'Right. A adds more dollars of value. The IRR and PI rankings flip because of the scale difference; NPV does not.' },
+        { label: 'Neither — the IRRs are too close to the required return', correct: false, feedback: 'Both IRRs exceed 10% and both NPVs are positive.' }
+      ] },
+      reflection: 'The criteria disagreed. Which did you trust, and what argument would you give the CFO?'
+    },
+    {
+      id: 's9', ch: 'Ch 10', cslo: 'CSLO6', title: 'Build the project cash flows', firm: 'Northfield Manufacturing',
+      brief: '<p>Northfield is considering a <b>3-year</b> contract to supply a new customer. Equipment costs <b>$900,000</b>, depreciated straight-line to zero over 3 years, and can be sold for <b>$100,000</b> at the end. Sales will be <b>$1,200,000</b> a year, operating costs <b>$700,000</b>. The project needs <b>$80,000</b> of net working capital up front, recovered at the end. Tax rate <b>21%</b>, required return <b>12%</b>. Work in $000.</p>',
+      data: '<table class="fin small"><tr><th>Equipment</th><td>$900K, SL over 3 yrs</td><th>Salvage (pre-tax)</th><td>$100K</td></tr><tr><th>Sales / yr</th><td>$1,200K</td><th>Costs / yr</th><td>$700K</td></tr><tr><th>NWC</th><td>$80K up front, recovered yr 3</td><th>Tax / required return</th><td>21% / 12%</td></tr></table>',
+      questions: [
+        { id: 'dep', label: 'Annual depreciation', unit: '$000', answer: S9.cost / S9.life, tol: 0.5, solution: '900 / 3 = 300' },
+        { id: 'ocf', label: 'Annual operating cash flow', unit: '$000', answer: s9ocf, tol: 0.5, solution: 'OCF = (Sales − Costs − Dep)(1 − t) + Dep = (1,200 − 700 − 300)(0.79) + 300 = ' + s9ocf.toFixed(1) },
+        { id: 'cf0', label: 'Year-0 cash flow (enter as a negative number)', unit: '$000', answer: s9cfs[0], tol: 0.5, solution: '−(900 + 80) = −980' },
+        { id: 'cf3', label: 'Year-3 total cash flow', unit: '$000', answer: s9cfs[3], tol: 0.5, solution: 'OCF + NWC recovery + after-tax salvage = 458 + 80 + 100(1 − 0.21) = ' + s9cfs[3].toFixed(1) },
+        { id: 'npv', label: 'NPV of the project', unit: '$000', answer: FS.npv(S9.r, s9cfs), tol: 1, solution: 'NPV = −980 + 458/1.12 + 458/1.12² + 617/1.12³ = ' + FS.npv(S9.r, s9cfs).toFixed(2) },
+        { id: 'irr', label: 'IRR of the project', unit: '%', answer: FS.irr(s9cfs) * 100, tol: 0.1, solution: 'IRR = ' + (FS.irr(s9cfs) * 100).toFixed(2) + '%' }
+      ],
+      mcq: [],
+      decision: { prompt: 'Accept the contract?', options: [
+        { label: 'Accept — NPV is positive at the 12% required return', correct: true, feedback: 'Right. The project adds about $233K of value. Note that depreciation is not a cash flow itself; only its tax shield (300 × 0.21 = 63) matters.' },
+        { label: 'Reject — the equipment loses $800,000 of value', correct: false, feedback: 'Book losses are not cash flows. What matters is the after-tax cash the project generates.' },
+        { label: 'Reject — net income is only $158K a year', correct: false, feedback: 'Net income understates the cash flow because depreciation is a non-cash charge.' }
+      ] },
+      reflection: 'Which item was easiest to forget — the NWC recovery, the salvage tax, or the depreciation tax shield? How will you check for it next time?'
+    },
+    {
+      id: 's10', ch: 'Ch 11', cslo: 'CSLO6', title: 'How wrong can the forecast be?', firm: 'Northfield Manufacturing',
+      brief: '<p>A proposed product sells at <b>$25</b> with variable cost <b>$15</b>. Fixed costs are <b>$150,000</b> a year, the <b>$300,000</b> investment is depreciated straight-line over <b>3 years</b>, and the required return is <b>12%</b>. Base-case sales: <b>30,000 units</b>. Worst case: 26,000 units at $24. Best case: 34,000 at $26. Ignore taxes (as in the Ross Ch 11 break-even examples).</p>',
+      data: '<table class="fin small"><tr><th>Price / variable cost</th><td>$25 / $15</td><th>Fixed costs</th><td>$150,000</td></tr><tr><th>Investment</th><td>$300,000, SL 3 yrs</td><th>Required return</th><td>12%</td></tr><tr><th>Base / worst / best units</th><td>30,000 / 26,000 / 34,000</td><th>Worst / best price</th><td>$24 / $26</td></tr></table>',
+      questions: [
+        { id: 'abe', label: 'Accounting break-even (units)', unit: 'units', answer: (S10.fc + S10.dep) / (S10.p - S10.v), tol: 10, solution: 'Q = (FC + D) / (P − v) = (150,000 + 100,000) / 10 = 25,000 units' },
+        { id: 'cbe', label: 'Cash break-even (units)', unit: 'units', answer: S10.fc / (S10.p - S10.v), tol: 10, solution: 'Q = FC / (P − v) = 150,000 / 10 = 15,000 units' },
+        { id: 'fbe', label: 'Financial break-even (units)', unit: 'units', answer: (S10.fc + S10.inv / af) / (S10.p - S10.v), tol: 30, solution: 'OCF needed = 300,000 / annuity factor(12%, 3 yrs) = 300,000 / ' + af.toFixed(4) + ' = ' + money(S10.inv / af) + '. Q = (FC + OCF*) / (P − v) = ' + ((S10.fc + S10.inv / af) / (S10.p - S10.v)).toFixed(0) + ' units' },
+        { id: 'npvbase', label: 'Base-case NPV', unit: '$', answer: ((S10.p - S10.v) * S10.base - S10.fc) * af - S10.inv, tol: 100, solution: 'OCF = 10 × 30,000 − 150,000 = 150,000. NPV = 150,000 × ' + af.toFixed(4) + ' − 300,000 = ' + money(((S10.p - S10.v) * S10.base - S10.fc) * af - S10.inv) },
+        { id: 'npvworst', label: 'Worst-case NPV', unit: '$', answer: ((S10.worst.p - S10.v) * S10.worst.q - S10.fc) * af - S10.inv, tol: 100, solution: 'OCF = 9 × 26,000 − 150,000 = 84,000. NPV = 84,000 × ' + af.toFixed(4) + ' − 300,000 = ' + money(((S10.worst.p - S10.v) * S10.worst.q - S10.fc) * af - S10.inv) },
+        { id: 'dol', label: 'Degree of operating leverage at the base case', unit: 'x', answer: 1 + S10.fc / ((S10.p - S10.v) * S10.base - S10.fc), tol: 0.02, solution: 'DOL = 1 + FC / OCF = 1 + 150,000 / 150,000 = 2.00' }
+      ],
+      mcq: [],
+      decision: { prompt: 'Base case is positive, worst case is deeply negative. What should the analyst recommend?', options: [
+        { label: 'Accept — the base case is what we expect', correct: false, feedback: 'The point of scenario analysis is that the base case is one forecast among several. A 13% shortfall in units flips the sign.' },
+        { label: 'Reject — any negative scenario kills a project', correct: false, feedback: 'Almost every project has a losing scenario. The question is how likely it is and what can be learned before committing.' },
+        { label: 'Run sensitivity analysis on unit sales, find out what drives the forecast, and consider a smaller pilot before committing the full $300,000', correct: true, feedback: 'Right. Break-even sits at 27,490 units, only 8% below base. That is a project whose value depends on one uncertain number; reduce forecasting risk before spending.' }
+      ] },
+      reflection: 'How far can unit sales fall before the NPV turns negative? How confident are you in a 30,000-unit forecast?'
+    }
+  ];
+  /* ---------- "Before you start" primers: idea, formulas, a worked example with
+     different numbers from the scenario, calculator keys, and common mistakes.
+     Example figures are computed here so they can never drift from the engine. ---------- */
+  var m0 = function (x) { return money(x, 0); }, m2 = function (x) { return money(x, 2); };
+  var f2 = function (x) { return Number(x).toFixed(2); };
+  var exS8 = [-1000, 500, 400, 400];
+  var exS9 = [-650, 275, 275, 370];
+  var af10 = FS.annuityFactor(0.10, 3);
+  var exP2 = 1.388625 / 0.07;
+  var PRIMERS = {
+    s1: {
+      topic: 'The three decisions and the goal of the firm',
+      ideas: '<p>Almost every decision a financial manager makes falls into one of three buckets. <b>Capital budgeting</b> is deciding which long-term assets to invest in (a plant, a store, new equipment). <b>Capital structure</b> is deciding how to pay for them: borrow (debt) or bring in owners’ money (equity). <b>Working capital management</b> is the day-to-day: how much cash and inventory to hold, how quickly customers must pay, how quickly the firm pays suppliers.</p><p>The goal that ties them together is to <b>maximize the current value of each share of the existing stock</b>. That is not the same as maximizing profit: profit is an accounting number for one period, while value counts all future cash flows, when they arrive, and how risky they are.</p><p>An <b>agency problem</b> arises when managers (the agents) are rewarded for something other than what owners (the principals) want, such as this year’s earnings.</p>',
+      formulas: [],
+      example: { title: 'Sorting decisions at a coffee chain', setup: '', steps: [
+        'Opening ten new cafés → <b>capital budgeting</b> (long-term assets).',
+        'Paying for them with a five-year bank loan instead of selling shares → <b>capital structure</b>.',
+        'Ordering beans every week instead of every month to keep less cash tied up in inventory → <b>working capital</b>.',
+        'Cutting all barista training would raise this year’s profit, but if service and sales suffer later, the value of the shares falls. Profit up, value down: the wrong test.'
+      ] },
+      keys: [],
+      mistakes: ['Treating “maximize profit” as the goal. Ask instead: does this make the shares worth more today?', 'Confusing capital structure (how assets are financed) with capital budgeting (which assets to buy).']
+    },
+    s2: {
+      topic: 'Financial ratios (Ross Ch 3)',
+      ideas: '<p>Ratios turn statements of different-sized firms into comparable numbers. Each ratio answers a question; group them by the question they answer, then compare each to the industry average. A ratio is only “good” or “bad” relative to a benchmark.</p>',
+      formulas: [
+        ['Current ratio (liquidity)', 'Current assets ÷ Current liabilities'],
+        ['Quick ratio (liquidity)', '(Current assets − Inventory) ÷ Current liabilities'],
+        ['Total debt ratio (leverage)', '(Total assets − Total equity) ÷ Total assets'],
+        ['Times interest earned (coverage)', 'EBIT ÷ Interest'],
+        ['Days’ sales in receivables', 'Receivables ÷ (Sales ÷ 365)'],
+        ['Profit margin', 'Net income ÷ Sales'],
+        ['Return on assets (ROA)', 'Net income ÷ Total assets'],
+        ['Return on equity (ROE)', 'Net income ÷ Total equity'],
+        ['DuPont identity', 'ROE = Profit margin × Total asset turnover × Equity multiplier = (NI/Sales) × (Sales/TA) × (TA/TE)']
+      ],
+      example: { title: 'A small firm', setup: 'Current assets 500, of which inventory 200; current liabilities 250; total assets 1,000; total equity 600; sales 1,200; EBIT 150; interest 25; net income 90; receivables 150 ($000).', steps: [
+        'Current ratio = 500 / 250 = <b>2.00</b>. Quick ratio = (500 − 200) / 250 = <b>1.20</b>.',
+        'Total debt ratio = (1,000 − 600) / 1,000 = <b>0.40</b>. All liabilities count, current and long-term.',
+        'TIE = 150 / 25 = <b>6.0</b> times. Use EBIT, not net income.',
+        'Days’ sales in receivables = 150 / (1,200 / 365) = 150 / 3.29 = <b>45.6 days</b>.',
+        'Profit margin = 90 / 1,200 = <b>7.50%</b>; ROA = 90 / 1,000 = <b>9.00%</b>; ROE = 90 / 600 = <b>15.00%</b>.',
+        'DuPont check: 7.50% × 1.200 × 1.667 = 15.00%. ROE is higher than ROA because the firm uses debt (the equity multiplier is above 1).'
+      ] },
+      keys: [],
+      mistakes: ['Using net income instead of EBIT in times interest earned.', 'Leaving current liabilities out of “total debt”.', 'Entering a percentage as a decimal. In this lab, type 7.50 for 7.50%, but 2.00 for a current ratio of 2.00.']
+    },
+    s3: {
+      topic: 'External financing needed and growth rates (Ross Ch 4)',
+      ideas: '<p>When sales grow, the firm needs more assets (inventory, receivables, equipment). Some of that is funded automatically: <b>spontaneous liabilities</b> such as accounts payable grow with sales, and the firm <b>retains</b> part of its profit. Whatever is left must come from outside: new borrowing or new stock. That gap is <b>external financing needed (EFN)</b>.</p><p>Two growth rates tell you how fast a firm can grow without outside money. The <b>internal growth rate</b> is the fastest growth funded by retained earnings alone. The <b>sustainable growth rate</b> is the fastest growth funded by retained earnings plus enough new debt to keep the debt-equity ratio constant (no new stock).</p>',
+      formulas: [
+        ['Retention ratio, b', '1 − Dividend payout ratio'],
+        ['Addition to retained earnings', 'Profit margin × Projected sales × b'],
+        ['EFN', 'Increase in assets − Increase in spontaneous liabilities − Addition to retained earnings'],
+        ['Internal growth rate', '(ROA × b) ÷ (1 − ROA × b)'],
+        ['Sustainable growth rate', '(ROE × b) ÷ (1 − ROE × b)']
+      ],
+      example: { title: 'A firm growing 10%', setup: 'Sales 1,000; assets 800, all varying with sales; accounts payable 100; equity 500; profit margin 10%; payout 50%; planned growth 10% ($000).', steps: [
+        'Increase in assets = 800 × 10% = 80. Increase in payables = 100 × 10% = 10.',
+        'Projected sales = 1,100. Addition to retained earnings = 0.10 × 1,100 × 0.50 = 55. Use <i>next year’s</i> sales.',
+        'EFN = 80 − 10 − 55 = <b>15</b>.',
+        'ROA = 100 / 800 = 12.5%; ROA × b = 0.0625. IGR = 0.0625 / 0.9375 = <b>6.67%</b>.',
+        'ROE = 100 / 500 = 20%; ROE × b = 0.10. SGR = 0.10 / 0.90 = <b>11.11%</b>.',
+        'Reading it: 10% growth is above the IGR (needs some outside money) but below the SGR (borrowing alone can cover it).'
+      ] },
+      keys: [],
+      mistakes: ['Using this year’s sales for the addition to retained earnings.', 'Treating long-term debt as a spontaneous liability. Only items like payables grow automatically.', 'Mixing up ROA (internal growth) and ROE (sustainable growth).']
+    },
+    s4: {
+      topic: 'Time value of money: single sums (Ross Ch 5)',
+      ideas: '<p>A dollar today is worth more than a dollar later, because today’s dollar can be invested and earn interest. <b>Compounding</b> moves money forward in time; <b>discounting</b> moves it back. To compare amounts at different dates, move them to the same date first.</p><p>There are four quantities: present value (PV), future value (FV), the rate per period (r), and the number of periods (t). Know any three and you can solve for the fourth.</p>',
+      formulas: [
+        ['Future value', 'FV = PV × (1 + r)ᵗ'],
+        ['Present value', 'PV = FV ÷ (1 + r)ᵗ'],
+        ['Rate', 'r = (FV ÷ PV)^(1/t) − 1'],
+        ['Number of periods', 't = ln(FV ÷ PV) ÷ ln(1 + r)']
+      ],
+      example: { title: 'Three quick problems', setup: '', steps: [
+        '$10,000 today at 5% for 8 years grows to 10,000 × 1.05⁸ = <b>' + m2(FS.fv(10000, 0.05, 8)) + '</b>.',
+        '$20,000 needed in 10 years at 6% is worth 20,000 / 1.06¹⁰ = <b>' + m2(FS.pv(20000, 0.06, 10)) + '</b> today.',
+        '$5,000 grows to $8,000 in 7 years: r = (8,000 / 5,000)^(1/7) − 1 = <b>' + f2((Math.pow(1.6, 1 / 7) - 1) * 100) + '%</b>.'
+      ] },
+      keys: ['Once: set one payment per year. 2nd [P/Y], 1, ENTER, 2nd [QUIT].', 'Before each problem: clear the worksheet. 2nd [CLR TVM].', 'First problem: 8 N, 5 I/Y, 10000 +/− PV, 0 PMT, CPT FV → 14,774.55.', 'Second: 10 N, 6 I/Y, 20000 FV, 0 PMT, CPT PV → −11,167.90 (negative = money you put in).', 'Third: 7 N, 5000 +/− PV, 8000 FV, 0 PMT, CPT I/Y → 6.94.'],
+      mistakes: ['Forgetting the minus sign on PV when solving for I/Y or N (the calculator shows “Error 5”).', 'Not clearing TVM, so a leftover PMT from the last problem changes the answer.', 'P/Y left at 12 from a previous class. Check it.']
+    },
+    s5: {
+      topic: 'Annuities, perpetuities and effective rates (Ross Ch 6)',
+      ideas: '<p>An <b>annuity</b> is a level payment every period for a fixed number of periods: a loan payment, a lease, a pension. A <b>perpetuity</b> pays forever. Loans and leases are usually quoted with an <b>APR</b> (annual percentage rate) that compounds monthly, so the rate per period is APR ÷ 12 and the number of periods is years × 12.</p><p>The <b>effective annual rate (EAR)</b> is what you really pay or earn in a year once compounding is counted. To compare offers with different compounding, compare EARs, not APRs.</p>',
+      formulas: [
+        ['PV of an ordinary annuity', 'PV = C × [1 − 1 ÷ (1 + r)ᵗ] ÷ r'],
+        ['Annuity payment', 'C = PV ÷ annuity factor'],
+        ['Perpetuity', 'PV = C ÷ r'],
+        ['Effective annual rate', 'EAR = (1 + APR ÷ m)ᵐ − 1, where m = compounding periods per year']
+      ],
+      example: { title: 'A car loan, a quoted rate and a perpetuity', setup: '', steps: [
+        '$25,000 car loan, 6% APR, monthly payments, 4 years: r = 0.06/12 = 0.5% per month, t = 48. Payment = <b>' + m2(FS.pmt(25000, 0.005, 48)) + '</b> a month.',
+        '12% APR compounded quarterly: EAR = (1 + 0.12/4)⁴ − 1 = <b>' + f2(FS.ear(0.12, 4) * 100) + '%</b>.',
+        'A share that pays $3 a year forever, at 6%: PV = 3 / 0.06 = <b>$50.00</b>.'
+      ] },
+      keys: ['Car loan: 2nd [CLR TVM]. 48 N, 0.5 I/Y, 25000 PV, 0 FV, CPT PMT → −587.13.', 'EAR: 2nd [ICONV]. NOM = 12 ENTER, ↓ C/Y = 4 ENTER, ↓ EFF CPT → 12.55.', 'Payments at the start of each period (annuity due): 2nd [BGN], 2nd [SET]. Switch back to END afterwards.'],
+      mistakes: ['Using the annual rate with a monthly number of periods (or the reverse).', 'Comparing APRs with different compounding instead of EARs.', 'Leaving the calculator in BGN mode for the next problem.']
+    },
+    s6: {
+      topic: 'Bond valuation (Ross Ch 7)',
+      ideas: '<p>A bond pays a fixed <b>coupon</b> every period and its <b>face value</b> at maturity. Its price is the present value of those cash flows, discounted at the market’s required return, the <b>yield to maturity (YTM)</b>.</p><p>If the coupon rate is below the YTM the bond sells at a <b>discount</b> (below $1,000); above it, at a <b>premium</b>; equal, at par. When market rates rise, bond prices fall. Longer maturities and lower coupons make prices more sensitive to rate changes (more <b>interest-rate risk</b>).</p>',
+      formulas: [
+        ['Bond price', 'Price = Coupon × [1 − 1 ÷ (1 + r)ᵗ] ÷ r + Face ÷ (1 + r)ᵗ'],
+        ['Semiannual bonds', 't = years × 2; r = YTM ÷ 2; coupon = annual coupon ÷ 2'],
+        ['Current yield', 'Annual coupon ÷ Price']
+      ],
+      example: { title: 'A 5-year, 8% semiannual bond when the market yields 6%', setup: '', steps: [
+        'Periods = 10; rate per period = 3%; coupon per period = $40; face = $1,000.',
+        'Price = 40 × annuity factor(3%, 10) + 1,000 / 1.03¹⁰ = <b>' + m2(FS.bondPrice(1000, 0.08, 0.06, 5, 2)) + '</b>. A premium, because the 8% coupon beats the 6% market rate.',
+        'The same bond with a 4% coupon would sell for <b>' + m2(FS.bondPrice(1000, 0.04, 0.06, 5, 2)) + '</b>, a discount.',
+        'Current yield on the premium bond = 80 / ' + f2(FS.bondPrice(1000, 0.08, 0.06, 5, 2)) + ' = ' + f2(80 / FS.bondPrice(1000, 0.08, 0.06, 5, 2) * 100) + '%.'
+      ] },
+      keys: ['Price: 2nd [CLR TVM]. 10 N, 3 I/Y, 40 PMT, 1000 FV, CPT PV → −1,085.30.', 'YTM from a price: enter the price as a negative PV, then CPT I/Y. That is the rate per half-year: multiply by 2.'],
+      mistakes: ['Using the annual coupon ($80) with semiannual periods.', 'Forgetting to double the semiannual I/Y to get the YTM.', 'Thinking a falling bond price is good for the issuer. A lower price means a higher yield, so borrowing costs more.']
+    },
+    s7: {
+      topic: 'Stock valuation with dividends (Ross Ch 8)',
+      ideas: '<p>A share is worth the present value of all the dividends it will pay. If dividends grow at a constant rate forever, that sum collapses into the <b>constant-growth (Gordon) model</b>. If growth is unusually fast for a few years and then settles down, value the early dividends one at a time, find the price at the point growth becomes constant, and discount everything back.</p><p>Turned around, the model says the return investors expect is the <b>dividend yield</b> plus the <b>growth rate</b> (the capital-gains yield).</p>',
+      formulas: [
+        ['Next dividend', 'D₁ = D₀ × (1 + g)'],
+        ['Constant growth', 'P₀ = D₁ ÷ (R − g), valid only when R > g'],
+        ['Price at a future date', 'Pₜ = Dₜ₊₁ ÷ (R − g)'],
+        ['Required return', 'R = D₁ ÷ P₀ + g']
+      ],
+      example: { title: 'Constant and non-constant growth', setup: '', steps: [
+        'Constant: D₀ = $1.50, g = 4%, R = 10%. D₁ = 1.50 × 1.04 = 1.56. P₀ = 1.56 / (0.10 − 0.04) = <b>$26.00</b>.',
+        'If that stock trades at $24.00, the market’s implied return is 1.56 / 24 + 0.04 = <b>' + f2((1.56 / 24 + 0.04) * 100) + '%</b>.',
+        'Non-constant: D₀ = $1.00, growth 15% for 2 years then 5% forever, R = 12%. D₁ = 1.15, D₂ = 1.3225, D₃ = 1.3886.',
+        'Price at year 2 = D₃ / (0.12 − 0.05) = ' + m2(exP2) + '.',
+        'P₀ = 1.15 / 1.12 + (1.3225 + ' + f2(exP2) + ') / 1.12² = <b>' + m2(1.15 / 1.12 + (1.3225 + exP2) / (1.12 * 1.12)) + '</b>.'
+      ] },
+      keys: ['Non-constant growth on the CF worksheet: CF0 = 0, C01 = 1.15, C02 = 1.3225 + 19.8375 = 21.16, then NPV with I = 12 → 17.90.'],
+      mistakes: ['Using D₀ instead of D₁ in the constant-growth formula.', 'Discounting the year-2 price by three years instead of two. Pₜ is already a year-t value.', 'Applying the formula when g ≥ R; the answer is meaningless.']
+    },
+    s8: {
+      topic: 'NPV and the other investment criteria (Ross Ch 9)',
+      ideas: '<p><b>Net present value</b> is the value a project adds: the present value of its future cash flows minus what it costs today. Accept if NPV is positive. The other criteria are shortcuts with blind spots. <b>IRR</b> is the discount rate that makes NPV zero; accept if it beats the required return. <b>Payback</b> counts years until the cost is recovered, ignoring time value and anything after the cutoff. The <b>profitability index</b> is PV of inflows per dollar invested.</p><p>For a single project, NPV and IRR usually agree. When you must choose between <b>mutually exclusive</b> projects of different size or timing, they can disagree. Then trust NPV, because it measures dollars of value, not a rate.</p>',
+      formulas: [
+        ['NPV', 'NPV = −C₀ + C₁ ÷ (1 + r) + C₂ ÷ (1 + r)² + … + Cₜ ÷ (1 + r)ᵗ'],
+        ['IRR', 'The r at which NPV = 0'],
+        ['Payback', 'Years before the cost is recovered + (unrecovered amount ÷ next year’s cash flow)'],
+        ['Profitability index', 'PV of future cash flows ÷ initial cost']
+      ],
+      example: { title: 'A project costing 1,000 with flows of 500, 400, 400 at 10%', setup: '', steps: [
+        'PV of the flows = 500/1.10 + 400/1.10² + 400/1.10³ = ' + [500 / 1.1, 400 / 1.21, 400 / 1.331].map(f2).join(' + ') + ' = ' + f2(FS.npv(0.10, exS8) + 1000) + '.',
+        'NPV = ' + f2(FS.npv(0.10, exS8) + 1000) + ' − 1,000 = <b>' + f2(FS.npv(0.10, exS8)) + '</b>. Positive, so accept.',
+        'IRR = <b>' + f2(FS.irr(exS8) * 100) + '%</b>, above 10%, so the rules agree.',
+        'Payback: 500 + 400 = 900 recovered after 2 years; 100 left of the year-3 400 → 2 + 100/400 = <b>' + f2(FS.payback(exS8)) + ' years</b>.',
+        'PI = ' + f2(FS.npv(0.10, exS8) + 1000) + ' / 1,000 = <b>' + FS.profitabilityIndex(0.10, exS8).toFixed(3) + '</b>.'
+      ] },
+      keys: ['CF, then 2nd [CLR WORK] to clear.', 'CF0 = 1000 +/− ENTER ↓; C01 = 500 ENTER ↓ F01 = 1 ↓; C02 = 400 ENTER ↓ F02 = 2 (two years of 400) ↓.', 'NPV, I = 10 ENTER ↓ CPT → ' + f2(FS.npv(0.10, exS8)) + '.', 'IRR CPT → ' + f2(FS.irr(exS8) * 100) + '.'],
+      mistakes: ['Ranking mutually exclusive projects by IRR or payback when the projects are different sizes.', 'Entering the year-0 cost as positive.', 'Forgetting to clear the CF worksheet, so the previous project’s flows are still there.']
+    },
+    s9: {
+      topic: 'Building project cash flows (Ross Ch 10)',
+      ideas: '<p>Only <b>incremental, after-tax cash flows</b> belong in a project analysis: cash that exists because of the project and would not otherwise. Ignore sunk costs (already spent); include opportunity costs (what an asset could earn elsewhere).</p><p>Depreciation is not a cash flow, but it lowers taxes, so it enters through the <b>operating cash flow</b> formula. <b>Net working capital</b> (extra inventory and receivables) is cash spent at the start and recovered at the end. If equipment is sold at the end for more than its book value, tax is owed on the gain.</p>',
+      formulas: [
+        ['Operating cash flow', 'OCF = (Sales − Costs − Depreciation) × (1 − T) + Depreciation'],
+        ['Depreciation tax shield', 'Depreciation × T'],
+        ['After-tax salvage', 'Salvage − T × (Salvage − Book value); with book value 0, Salvage × (1 − T)'],
+        ['Total cash flow each year', 'OCF − Change in NWC − Capital spending']
+      ],
+      example: { title: 'Equipment 600, three years, 25% tax, 10% required return ($000)', setup: 'Sales 500 and costs 200 a year; straight-line depreciation to zero; NWC of 50 up front; equipment sold for 60 at the end.', steps: [
+        'Depreciation = 600 / 3 = 200 a year.',
+        'OCF = (500 − 200 − 200) × 0.75 + 200 = 75 + 200 = <b>275</b>.',
+        'Year 0 = −600 equipment − 50 NWC = <b>−650</b>.',
+        'Year 3 = 275 OCF + 50 NWC back + 60 × 0.75 after-tax salvage (45) = <b>370</b>.',
+        'NPV of −650, 275, 275, 370 at 10% = <b>' + f2(FS.npv(0.10, exS9)) + '</b>; IRR = ' + f2(FS.irr(exS9) * 100) + '%.'
+      ] },
+      keys: ['CF0 = 650 +/− ENTER ↓; C01 = 275 ENTER ↓ F01 = 2 ↓; C02 = 370 ENTER ↓ F02 = 1. NPV I = 10 ENTER ↓ CPT.'],
+      mistakes: ['Subtracting depreciation and never adding it back.', 'Forgetting to recover NWC in the final year.', 'Using the pre-tax salvage value.']
+    },
+    s10: {
+      topic: 'Scenario analysis and break-even (Ross Ch 11)',
+      ideas: '<p>A positive NPV is only as good as the forecast behind it. <b>Scenario analysis</b> recomputes NPV under a pessimistic and an optimistic set of assumptions. <b>Sensitivity analysis</b> changes one input at a time to see which one matters most. <b>Break-even analysis</b> asks how many units must be sold to reach a target.</p><p>There are three break-even points, from lowest to highest: <b>cash</b> (operating cash flow = 0), <b>accounting</b> (net income = 0), and <b>financial</b> (NPV = 0). <b>Operating leverage</b> measures how sharply cash flow swings when unit sales change; high fixed costs mean high leverage.</p>',
+      formulas: [
+        ['Accounting break-even', 'Q = (Fixed costs + Depreciation) ÷ (Price − Variable cost per unit)'],
+        ['Cash break-even', 'Q = Fixed costs ÷ (Price − Variable cost)'],
+        ['Financial break-even', 'Q = (Fixed costs + OCF*) ÷ (Price − Variable cost), where OCF* = Investment ÷ annuity factor'],
+        ['Degree of operating leverage', 'DOL = 1 + Fixed costs ÷ OCF']
+      ],
+      example: { title: 'Price $50, variable cost $30, fixed costs $40,000, $90,000 investment over 3 years, 10%, no taxes', setup: '', steps: [
+        'Depreciation = 90,000 / 3 = 30,000. Contribution per unit = 50 − 30 = $20.',
+        'Accounting break-even = (40,000 + 30,000) / 20 = <b>3,500 units</b>.',
+        'Cash break-even = 40,000 / 20 = <b>2,000 units</b>.',
+        'OCF* = 90,000 / ' + af10.toFixed(4) + ' = ' + m0(90000 / af10) + '. Financial break-even = (40,000 + ' + Math.round(90000 / af10).toLocaleString('en-US') + ') / 20 = <b>' + Math.round((40000 + 90000 / af10) / 20).toLocaleString('en-US') + ' units</b>.',
+        'At 5,000 units, OCF = 20 × 5,000 − 40,000 = 60,000, so DOL = 1 + 40,000 / 60,000 = <b>1.67</b>: a 10% rise in units lifts OCF about 16.7%.'
+      ] },
+      keys: ['Annuity factor for OCF*: 2nd [CLR TVM]. 3 N, 10 I/Y, 90000 +/− PV, 0 FV, CPT PMT → 36,190.'],
+      mistakes: ['Using accounting break-even as the “real” hurdle. A project can show accounting profit and still have a negative NPV.', 'Forgetting depreciation in accounting break-even (it is a cost to the income statement).', 'Treating the base case as certain.']
+    }
+  };
+  LIST.forEach(function (sc) { sc.primer = PRIMERS[sc.id]; });
+  return LIST;
+});
+if (typeof module !== 'undefined') module.exports = SCENARIOS;
+
+/* ===== Ridgeline Finance Lab: UI ===== */
+(function () {
+  var SC = SCENARIOS(FS);
+  var KEY = 'ridgeline-finance-lab-v1';
+  var state = load();
+  var view = { page: 'home', id: null };
+  var $ = function (sel, el) { return (el || document).querySelector(sel); };
+  var main = $('#main');
+
+  function blank() {
+    return { name: '', scenarios: {}, log: [], game: { state: FS.initialState(), rationales: [], reflection: '' }, created: new Date().toISOString() };
+  }
+  function load() {
+    try { var raw = localStorage.getItem(KEY); if (raw) { var s = JSON.parse(raw); if (s && s.game && s.game.state) return s; } } catch (e) { }
+    return blank();
+  }
+  function save() { try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) { } if(typeof pushToFirebase === "function") pushToFirebase(); }
+  function logEvent(kind, detail) { state.log.push({ t: new Date().toISOString(), kind: kind, detail: detail }); save(); }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function money(x, d) { var neg = x < 0; var v = Math.abs(x).toLocaleString('en-US', { minimumFractionDigits: d == null ? 0 : d, maximumFractionDigits: d == null ? 0 : d }); return (neg ? '−' : '') + '$' + v; }
+  function k(x) { return money(x) + 'K'; }
+  function pct(x, d) { return (x * 100).toFixed(d == null ? 1 : d) + '%'; }
+  function fmt(x, d) { return Number(x).toLocaleString('en-US', { minimumFractionDigits: d, maximumFractionDigits: d }); }
+  function fmtUnit(v, unit) {
+    if (unit === '$') return money(v, Math.abs(v) < 1000 ? 2 : 0);
+    if (unit === '$000') return fmt(v, 1) + 'K';
+    if (unit === '%') return fmt(v, 2) + '%';
+    if (unit === 'x') return fmt(v, 3);
+    return fmt(v, 2) + ' ' + unit;
+  }
+
+  // ---------- scenario progress ----------
+  function scProg(id) { return state.scenarios[id] || (state.scenarios[id] = { answers: {}, results: {}, attempts: 0, mcq: {}, decision: null, reflection: '', solutionViewed: false }); }
+  function scStatus(id) {
+    var s = SC.filter(function (x) { return x.id === id; })[0], p = state.scenarios[id];
+    if (!p) return 'none';
+    var qDone = s.questions.every(function (q) { return p.results[q.id] === true; }) || p.solutionViewed;
+    var mDone = s.mcq.every(function (m) { return p.mcq[m.id] != null; });
+    var dDone = p.decision != null;
+    if (qDone && mDone && dDone && p.reflection.trim().length > 0) return 'done';
+    return (p.attempts > 0 || dDone || Object.keys(p.mcq).length) ? 'part' : 'none';
+  }
+  function gameStatus() { var y = state.game.state.year; return y >= 5 ? 'done' : y > 0 ? 'part' : 'none'; }
+
+  // ---------- nav ----------
+  function renderNav() {
+    var html = '<div class="group">Guided scenarios</div>';
+    SC.forEach(function (s) {
+      var st = scStatus(s.id);
+      html += '<button data-page="scenario" data-id="' + s.id + '" class="' + (view.page === 'scenario' && view.id === s.id ? 'active' : '') + '"><span class="ch">' + s.ch + '</span><span class="t">' + esc(s.title) + '</span><span class="dot ' + st + '"></span></button>';
+    });
+    html += '<div class="group">Capstone</div>';
+    html += '<button data-page="capstone" class="' + (view.page === 'capstone' ? 'active' : '') + '"><span class="ch">Sim</span><span class="t">Run Ridgeline Outfitters</span><span class="dot ' + gameStatus() + '"></span></button>';
+    html += '<button data-page="debrief" class="' + (view.page === 'debrief' ? 'active' : '') + '"><span class="ch">Rpt</span><span class="t">Debrief &amp; report</span><span class="dot"></span></button>';
+    html += '<div class="group">Start here</div><button data-page="home" class="' + (view.page === 'home' ? 'active' : '') + '"><span class="ch">Lab</span><span class="t">How the lab works</span><span class="dot"></span></button>';
+    $('#nav').innerHTML = html;
+  }
+  function go(page, id) { view = { page: page, id: id || null }; render(); window.scrollTo(0, 0); $('#side').classList.remove('open'); }
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('#nav button'); if (b) go(b.dataset.page, b.dataset.id);
+  });
+  $('#studentName').value = state.name;
+  $('#studentName').addEventListener('change', function (e) { state.name = e.target.value.trim(); save(); });
+  $('#menuToggle').addEventListener('click', function () { $('#side').classList.toggle('open'); });
+  $('#resetAll').addEventListener('click', function () {
+    if (confirm('Erase all of your work in this browser and start over?')) { state = blank(); save(); go('home'); }
+  });
+
+  // ---------- render ----------
+  function render() {
+    renderNav();
+    if (view.page === 'home') renderHome();
+    else if (view.page === 'scenario') renderScenario(view.id);
+    else if (view.page === 'capstone') renderCapstone();
+    else renderDebrief();
+  }
+
+  function renderHome() {
+    var done = SC.filter(function (s) { return scStatus(s.id) === 'done'; }).length;
+    main.innerHTML =
+      '<div class="pagehead"><div class="eyebrow"><span>FIN 3310 · Corporate Finance</span><span>Kean University</span></div><h1>Apply it, then look back at how you decided.</h1><p class="firm">Ten guided scenarios follow the course chapter by chapter. The capstone puts you in the CFO’s chair for five years. The debrief shows you what you did, what it was worth, and why.</p></div>' +
+      '<div class="home-steps">' +
+      '<div class="panel"><div class="k">1</div><h3>Work the scenarios</h3><p class="note">Each one is a situation at a real-feeling firm with the chapter’s tools: ratios, time value, bonds, stocks, NPV. Each one opens with a short refresher and a worked example. Then enter your numbers, get checked, see the worked solution if you need it, and make the call.</p></div>' +
+      '<div class="panel"><div class="k">2</div><h3>Run the company</h3><p class="note">As CFO of Ridgeline Outfitters you pick projects, choose how to finance them, set credit and inventory policy, and decide the dividend — for five years, through a rate hike, a recession and a recovery. A step-by-step guide walks you through the first year, and you review every decision before it counts.</p></div>' +
+      '<div class="panel"><div class="k">3</div><h3>Analyze your process</h3><p class="note">The debrief compares your share price with a do-nothing benchmark, prices every project you took or skipped, tracks your ratios, and replays your own reasoning from the decision log.</p></div>' +
+      '</div>' +
+      '<div class="panel" style="margin-top:1.25rem"><h3>Before you start</h3><p>Type your name in the sidebar so it appears on your report. Your work is saved in this browser automatically. Keep your BA II Plus handy — the scenarios are built to be solved on it, and the capstone includes a cash-flow calculator that works the way the calculator’s CF worksheet does.</p><p class="note">Progress: ' + done + ' of ' + SC.length + ' scenarios complete · capstone year ' + state.game.state.year + ' of 5.</p><div class="actions"><button class="btn primary" id="startBtn">Start with Chapter 1</button><button class="btn" id="goCap">Jump to the capstone</button></div></div>';
+    $('#startBtn').onclick = function () { go('scenario', 's1'); };
+    $('#goCap').onclick = function () { go('capstone'); };
+  }
+
+  function primerHTML(pr, open) {
+    if (!pr) return '';
+    var h = '<details class="panel tint primer" id="primer"' + (open ? ' open' : '') + '><summary><span class="kicker">Before you start</span><h3>' + esc(pr.topic) + '</h3></summary><div class="primer-body">' + pr.ideas;
+    if (pr.formulas.length) h += '<h4>Formulas you will use</h4><dl class="formulas">' + pr.formulas.map(function (f) { return '<dt>' + f[0] + '</dt><dd>' + f[1] + '</dd>'; }).join('') + '</dl>';
+    h += '<div class="example"><div class="kicker">Worked example · different numbers from the scenario</div><h4 class="ex-title">' + pr.example.title + '</h4>' + (pr.example.setup ? '<p class="example-setup">' + pr.example.setup + '</p>' : '') + '<ol class="worked">' + pr.example.steps.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ol></div>';
+    if (pr.keys.length) h += '<h4>On the BA II Plus</h4><ul class="keys">' + pr.keys.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>';
+    if (pr.mistakes.length) h += '<h4>Common mistakes</h4><ul class="mistakes">' + pr.mistakes.map(function (x) { return '<li>' + x + '</li>'; }).join('') + '</ul>';
+    return h + '</div></details>';
+  }
+
+  // ---------- scenarios ----------
+  function renderScenario(id) {
+    var s = SC.filter(function (x) { return x.id === id; })[0], p = scProg(id);
+    var idx = SC.indexOf(s);
+    var html = '<div class="pagehead"><div class="eyebrow"><span>' + s.ch + '</span><span>' + s.cslo + '</span><span>Scenario ' + (idx + 1) + ' of ' + SC.length + '</span></div><h1>' + esc(s.title) + '</h1><div class="firm">' + esc(s.firm) + '</div></div>';
+    html += primerHTML(s.primer, p.primerOpen != null ? p.primerOpen : true);
+    html += '<div class="panel"><div class="kicker">The situation</div>' + s.brief + '<div class="wide">' + s.data + '</div></div>';
+    if (s.questions.length) {
+      html += '<div class="panel"><h3>Your numbers</h3><p class="note">Round as your calculator shows; answers within a small tolerance are accepted. Stuck? The worked example in “Before you start” uses the same method with different numbers. Attempts so far: <b>' + p.attempts + '</b>.</p><div class="qlist">';
+      s.questions.forEach(function (q) {
+        var r = p.results[q.id], cls = r === true ? 'ok' : r === false ? 'bad' : '';
+        html += '<div class="q ' + cls + '"><label for="q_' + q.id + '">' + esc(q.label) + '</label><div class="in"><input id="q_' + q.id + '" data-q="' + q.id + '" inputmode="decimal" value="' + (p.answers[q.id] != null ? esc(p.answers[q.id]) : '') + '"><span class="unit">' + esc(q.unit) + '</span></div><div class="mark">' + (r === true ? 'Correct' : r === false ? 'Not yet' : '') + '</div>' +
+          (p.solutionViewed ? '<div class="sol"><b>' + fmtUnit(q.answer, q.unit) + '</b> — ' + q.solution + '</div>' : '') + '</div>';
+      });
+      html += '</div><div class="actions"><button class="btn primary" id="checkBtn">Check my answers</button><button class="btn" id="solBtn"' + (p.solutionViewed ? ' disabled' : '') + '>' + (p.solutionViewed ? 'Worked solution shown' : 'Show worked solution') + '</button><span class="note">Showing the solution is logged in your report — it is fine to use, just be honest about it in your reflection.</span></div></div>';
+    }
+    if (s.mcq.length) {
+      html += '<div class="panel"><h3>Concept check</h3>';
+      s.mcq.forEach(function (m) {
+        var chosen = p.mcq[m.id];
+        html += '<div class="mcq" data-m="' + m.id + '"><p>' + esc(m.prompt) + '</p><div class="opts">';
+        m.options.forEach(function (o, i) {
+          var cls = chosen == null ? '' : i === m.correct ? 'correct' : i === chosen ? 'wrong' : '';
+          html += '<label class="' + cls + '"><input type="radio" name="m_' + m.id + '" value="' + i + '"' + (chosen === i ? ' checked' : '') + (chosen != null ? ' disabled' : '') + '> <span>' + esc(o) + '</span></label>';
+        });
+        html += '</div>' + (chosen != null ? '<div class="fb">' + (chosen === m.correct ? '<b>Correct.</b> ' : '<b>Not quite.</b> ') + esc(m.feedback) + '</div>' : '') + '</div>';
+      });
+      html += '</div>';
+    }
+    html += '<div class="panel copper"><h3>The decision</h3><div class="mcq" data-d="1" style="background:transparent;border:0;padding:0"><p>' + esc(s.decision.prompt) + '</p><div class="opts">';
+    s.decision.options.forEach(function (o, i) {
+      var cls = p.decision == null ? '' : o.correct ? 'correct' : i === p.decision ? 'wrong' : '';
+      html += '<label class="' + cls + '"><input type="radio" name="dec" value="' + i + '"' + (p.decision === i ? ' checked' : '') + (p.decision != null ? ' disabled' : '') + '> <span>' + esc(o.label) + '</span></label>';
+    });
+    html += '</div>' + (p.decision != null ? '<div class="fb">' + esc(s.decision.options[p.decision].feedback) + '</div>' : '') + '</div></div>';
+    html += '<div class="panel reflect"><h3>Reflection</h3><p class="note">' + esc(s.reflection) + '</p><textarea id="refl" placeholder="A few sentences. This goes into your report.">' + esc(p.reflection) + '</textarea><div class="actions"><button class="btn primary" id="saveRefl">Save reflection</button><span class="note" id="reflNote">' + (p.reflection ? 'Saved.' : '') + '</span></div></div>';
+    html += '<div class="actions">' + (idx > 0 ? '<button class="btn quiet" id="prevSc">← ' + esc(SC[idx - 1].title) + '</button>' : '') + (idx < SC.length - 1 ? '<button class="btn" id="nextSc">Next: ' + esc(SC[idx + 1].title) + ' →</button>' : '<button class="btn" id="nextSc">Go to the capstone →</button>') + '</div>';
+    main.innerHTML = html;
+
+    var prEl = $('#primer');
+    if (prEl) $('summary', prEl).addEventListener('click', function () { setTimeout(function () { p.primerOpen = prEl.open; if (prEl.open) logEvent('primer', { scenario: s.id }); save(); }, 0); });
+    if (s.questions.length) {
+      $('#checkBtn').onclick = function () {
+        p.attempts++;
+        var correct = 0, wrong = [];
+        s.questions.forEach(function (q) {
+          var raw = $('#q_' + q.id).value.trim().replace(/[$,%\s]/g, '').replace(/−/g, '-');
+          p.answers[q.id] = $('#q_' + q.id).value;
+          if (raw === '') { p.results[q.id] = null; return; }
+          var v = parseFloat(raw);
+          var ok = !isNaN(v) && (Math.abs(v - q.answer) <= q.tol || Math.abs(v - q.answer) <= Math.abs(q.answer) * 0.005);
+          p.results[q.id] = ok; if (ok) correct++; else wrong.push(q.id + '=' + raw);
+        });
+        logEvent('check', { scenario: s.id, attempt: p.attempts, correct: correct, of: s.questions.length, wrong: wrong });
+        save(); renderScenario(id);
+      };
+      $('#solBtn').onclick = function () { p.solutionViewed = true; logEvent('solution', { scenario: s.id, attempt: p.attempts }); save(); renderScenario(id); };
+    }
+    main.querySelectorAll('.mcq[data-m] input').forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        var mid = inp.closest('.mcq').dataset.m, m = s.mcq.filter(function (x) { return x.id === mid; })[0];
+        p.mcq[mid] = parseInt(inp.value, 10);
+        logEvent('concept', { scenario: s.id, q: mid, chosen: p.mcq[mid], correct: p.mcq[mid] === m.correct });
+        save(); renderScenario(id);
+      });
+    });
+    main.querySelectorAll('input[name=dec]').forEach(function (inp) {
+      inp.addEventListener('change', function () {
+        p.decision = parseInt(inp.value, 10);
+        logEvent('decision', { scenario: s.id, chosen: p.decision, correct: s.decision.options[p.decision].correct });
+        save(); renderScenario(id);
+      });
+    });
+    $('#saveRefl').onclick = function () { p.reflection = $('#refl').value; logEvent('reflection', { scenario: s.id, length: p.reflection.length }); save(); $('#reflNote').textContent = 'Saved.'; renderNav(); };
+    if ($('#prevSc')) $('#prevSc').onclick = function () { go('scenario', SC[idx - 1].id); };
+    $('#nextSc').onclick = function () { idx < SC.length - 1 ? go('scenario', SC[idx + 1].id) : go('capstone'); };
+  }
+
+  // ---------- capstone ----------
+  function statements(h, prev) {
+    var is = '<h4>Income statement, Year ' + h.year + ' ($000)</h4>' +
+      ll('Sales', h.sales) + ll('Cost of goods sold', -h.cogs) + ll('Fixed operating costs', -h.fixed) + (h.carry ? ll('Inventory carrying cost', -h.carry) : '') + ll('Bad-debt expense', -h.badDebt) + ll('Depreciation', -h.dep) + (h.projectEBIT ? ll('Project operating income (pre-tax)', h.projectEBIT) : '') + ll('EBIT', h.ebit, 'tot') + ll('Interest', -h.interest) + ll('Taxes (21%)', -h.tax) + ll('Net income', h.ni, 'tot') + ll('Dividends paid', -h.dividends) + ll('EPS / DPS', h.eps.toFixed(2) + ' / ' + h.dps.toFixed(2), '', true);
+    var bs = '<h4>Balance sheet, end of Year ' + h.year + ' ($000)</h4>' +
+      ll('Cash', h.cash) + ll('Accounts receivable', h.ar) + ll('Inventory', h.inv) + ll('Net fixed assets', h.nfa) + ll('Total assets', h.totalAssets, 'tot') + ll('Accounts payable', h.ap) + (h.std ? ll('Bank line (emergency)', h.std) : '') + ll('Long-term debt', h.ltd) + ll('Shareholders’ equity', h.equity) + ll('Shares outstanding (000)', h.shares.toFixed(0), '', true);
+    var ratios = '<h4>Ratios &amp; market</h4>' +
+      ll('Current ratio', h.curRatio.toFixed(2), '', true) + ll('Debt / equity', h.de.toFixed(2), '', true) + ll('Times interest earned', h.tie.toFixed(1), '', true) + ll('Profit margin', pct(h.pm), '', true) + ll('ROE', pct(h.roe), '', true) + ll('Cash from operations', k(h.cfo), '', true) + ll('Market rate on new debt', pct(h.rate), '', true) + ll('Share price', money(h.price, 2), 'tot', true) + ll('Total return since start', pct(h.tsr), '', true);
+    return '<div class="grid3"><div>' + is + '</div><div>' + bs + '</div><div>' + ratios + '</div></div>';
+  }
+  function ll(l, v, cls, raw) { return '<div class="ledger-line ' + (cls || '') + '"><span>' + l + '</span><b>' + (raw ? v : (v < 0 ? '(' + fmt(Math.abs(v), 0) + ')' : fmt(v, 0))) + '</b></div>'; }
+
+  // keywords used to check the memo against the decisions (lower-case; ids match too)
+  var PKEYS = {
+    P1A: ['packing'], P1B: ['flagship', 'downtown'], P1C: ['ad blitz', 'blitz', 'advertis'],
+    P2A: ['e-commerce', 'ecommerce', 'platform'], P2B: ['refit'], P2C: ['acqui', 'rival'],
+    P3A: ['private-label', 'private label', 'house brand'], P3B: ['distribution', 'hub'], P3C: ['sponsor'],
+    P4A: ['solar'], P4B: ['overseas', 'expansion'], P4C: ['loyalty'],
+    P5A: ['forecasting'], P5B: ['second automated', 'second line', 'automated line'], P5C: ['headquarters', 'hq']
+  };
+  var EXAMPLE_CF = [-1000, 300, 300, 300, 400];
+  function flowsText(cfs) { return cfs.map(function (c) { return String(c); }).join(', '); }
+  function sameFlows(a, b) { return a.length === b.length && a.every(function (x, i) { return Math.abs(x - b[i]) < 0.01; }); }
+  function parseNum(v) { var s = String(v == null ? '' : v).trim().replace(/[$,\s]/g, '').replace(/−/g, '-'); if (s === '') return 0; var n = Number(s); return isNaN(n) ? NaN : n; }
+
+  function howToHTML(st, open) {
+    var ex = EXAMPLE_CF;
+    return '<details class="panel tint howto" id="howto"' + (open ? ' open' : '') + '><summary><span class="kicker">Read this first</span><h3>How to run a year</h3></summary><div class="howto-body"><ol class="howto-steps">' +
+      '<li><b>Read the outlook.</b> Each year has an event that changes interest rates, demand or costs. It affects your results and the cost of new debt.</li>' +
+      '<li><b>Evaluate each project on its own.</b> The three proposals are independent: you can accept any, all, or none of them. Do not add projects together; run each one through the calculator separately and note its NPV.' +
+      '<ul><li><b>What to type:</b> the project’s cash flows in time order, separated by commas. Year 0 is the cost, entered as a <i>negative</i> number. Then the annual operating cash flow for each year of its life, with the salvage value added to the last year. The table’s “Cash flows to enter” column already lists them in this order, and the <b>Load</b> button copies them into the calculator for you.</li>' +
+      '<li><b>Rate:</b> 10%, Ridgeline’s required return.</li>' +
+      '<li><b>Decision rule:</b> accept every project with a positive NPV, and only those. IRR, payback and PI are shown for comparison; when they disagree with NPV, follow NPV.</li></ul>' +
+      '<div class="example"><div class="kicker">Worked example (not on this year’s menu)</div><p>A machine costs $1,000K, brings in $300K a year for 4 years, and is sold for $100K at the end. Year 4’s flow is 300 + 100 = 400, so you type:</p><code>' + flowsText(ex) + '</code><p>At 10% the calculator shows NPV <b>' + fmt(FS.npv(0.10, ex), 2) + '</b> and IRR <b>' + pct(FS.irr(ex), 2) + '</b>. NPV is positive, so the machine adds value: accept. On a BA II Plus: CF0 = −1000, C01 = 300 with F01 = 3, C02 = 400, then NPV at I = 10.</p></div></li>' +
+      '<li><b>Make sure you can pay for what you accept.</b> Projects are paid for in cash at the start of the year. Compare their total cost with your cash on hand (' + k(st.cash) + ' now). If you are short, issue bonds or stock to cover the gap plus a cushion of roughly $500K, because dividends and working capital also use cash. Otherwise the bank lends the shortfall at the market rate plus 3 points.</li>' +
+      '<li><b>Set working-capital and dividend policy.</b> Credit terms and inventory policy change sales and how much cash is tied up in receivables and stock. The dividend is paid on every share at year-end.</li>' +
+      '<li><b>Write your memo, then review.</b> Explain what you chose and why. “Review my decisions” shows everything on one screen and flags anything that does not match your memo before you close the year.</li>' +
+      '</ol></div></details>';
+  }
+
+  function renderCapstone() {
+    var g = state.game, st = g.state, yr = st.year + 1;
+    var last = st.history[st.history.length - 1];
+    var html = '<div class="pagehead"><div class="eyebrow"><span>Capstone</span><span>CSLO 2 · 3 · 4 · 5 · 6</span></div><h1>Ridgeline Outfitters</h1><div class="firm">A regional outdoor-gear retailer. You are the CFO. Amounts in thousands of dollars; 1,000K shares outstanding at the start; required return on projects 10%; tax rate 21%.</div></div>';
+    html += '<div class="yearbar">' + FS.CAP.events.map(function (e) { return '<div class="' + (e.year < yr ? 'done' : e.year === yr ? 'now' : '') + '">Year ' + e.year + '<b>' + esc(e.title) + '</b></div>'; }).join('') + '</div>';
+    html += '<div class="stats">' + tile('Share price', money(st.price, 2), last ? 'was ' + money(st.openingPrice, 2) + ' at start' : 'opening price') + tile('Cash', k(st.cash), 'available now') + tile('Long-term debt', k(st.ltd), 'at ' + pct(st.debtRate) + ' average') + tile('Market rate', pct(st.rate), 'cost of new debt') + tile('Dividends paid', money(st.cumDiv, 2) + '/sh', 'cumulative') + '</div>';
+
+    if (st.year >= 5) {
+      html += '<div class="panel tint"><h3>Five years are in the books.</h3><p>Your final share price is ' + money(st.price, 2) + ' against an opening price of ' + money(st.openingPrice, 2) + ', plus ' + money(st.cumDiv, 2) + ' per share of dividends. Head to the debrief to see what created — and destroyed — value.</p><div class="actions"><button class="btn primary" id="toDebrief">Open the debrief</button></div></div>';
+      html += '<div class="panel">' + statements(last) + '</div>';
+      main.innerHTML = html; $('#toDebrief').onclick = function () { go('debrief'); }; return;
+    }
+
+    if (!g.draft || g.draft.year !== yr) g.draft = { year: yr, accept: [], bonds: '0', stock: '0', repay: '0', dps: '0.50', credit: 'net45', inventory: 'normal', why: '', runs: [], reviews: 0, cf: '', rate: '10' };
+    var dr = g.draft;
+    var menu = FS.CAP.projects[yr];
+    var howOpen = yr === 1 ? g.howtoOpen !== false : g.howtoOpen === true;
+    html += howToHTML(st, howOpen);
+
+    var ev = FS.CAP.events[yr - 1];
+    html += '<div class="panel event"><div class="kicker" style="color:var(--copper)">Year ' + yr + ' outlook</div><h3>' + esc(ev.title) + '</h3><p>' + esc(ev.text) + '</p>' + (yr === 1 ? '<p class="note">Last year Ridgeline sold ' + k(10250) + ', earned about ' + k(948) + ' after tax, and paid $0.50 a share in dividends. The core business grows about 3% a year on its own.</p>' : '') + '</div>';
+    if (last) html += '<div class="panel"><h3>Last year’s results</h3>' + (last.notes.length ? '<ul class="notes">' + last.notes.map(function (n) { return '<li>' + esc(n) + '</li>'; }).join('') + '</ul>' : '') + statements(last) + '</div>';
+
+    // projects
+    html += '<div class="panel"><h3>Step 2 · This year’s project proposals</h3><p class="note">Three independent proposals. Evaluate each one separately at 10%, then tick the ones you accept. Each cost is paid now; operating cash flows arrive at the end of each year; salvage (already after tax) arrives with the last one.</p><div class="wide"><table class="projects"><tr><th>Accept</th><th>Project</th><th>Cost</th><th>Annual OCF</th><th>Life</th><th>Salvage</th><th>Cash flows to enter</th><th></th></tr>';
+    menu.forEach(function (p) {
+      var cfs = FS.projectCFs(p), chosen = dr.accept.indexOf(p.id) >= 0;
+      html += '<tr data-p="' + p.id + '" class="' + (chosen ? 'chosen' : '') + '"><td><input type="checkbox" class="acc" value="' + p.id + '" aria-label="Accept ' + esc(p.name) + '"' + (chosen ? ' checked' : '') + '></td><td class="name">' + esc(p.name) + '<small>' + esc(p.note) + '</small><span class="evald" data-ev="' + p.id + '"></span></td><td>' + k(p.cost) + '</td><td>' + k(p.ocf) + '</td><td>' + p.life + ' yrs</td><td>' + k(p.salvage) + '</td><td class="flows">' + esc(flowsText(cfs)) + '</td><td><button class="btn small load" data-load="' + p.id + '">Load</button></td></tr>';
+    });
+    html += '</table></div><div class="sel-sum" id="selSum"></div>';
+    html += '<div class="calcbox"><h4>Cash-flow calculator</h4><div class="calc"><div class="field"><label for="cfIn">Cash flows for <i>one</i> project: year 0 first (negative), separated by commas</label><input id="cfIn" placeholder="e.g. ' + flowsText(EXAMPLE_CF) + '" value="' + esc(dr.cf) + '"></div><div class="field"><label for="rIn">Rate %</label><input id="rIn" value="' + esc(dr.rate) + '" style="width:6rem"></div><button class="btn primary" id="calcBtn">Calculate</button></div><div class="calc-out" id="calcOut"></div><div id="runs"></div></div></div>';
+
+    // financing & policy
+    var opt = function (v, cur, label) { return '<option value="' + v + '"' + (v === cur ? ' selected' : '') + '>' + label + '</option>'; };
+    html += '<div class="panel"><h3>Steps 3–4 · Financing and policy</h3><div class="decide">' +
+      '<div class="field"><label for="bonds">Issue bonds ($000)</label><input id="bonds" inputmode="decimal" value="' + esc(dr.bonds) + '"><small>10-year bonds at today’s market rate of ' + pct(st.rate) + '. Interest is tax-deductible; more debt raises leverage risk.</small></div>' +
+      '<div class="field"><label for="stock">Issue new stock ($000)</label><input id="stock" inputmode="decimal" value="' + esc(dr.stock) + '"><small>Sold at ' + money(st.price * 0.95, 2) + ' per share after a 5% flotation cost. Dilutes existing holders.</small></div>' +
+      '<div class="field"><label for="repay">Repay long-term debt ($000)</label><input id="repay" inputmode="decimal" value="' + esc(dr.repay) + '"><small>Uses cash on hand. Cuts interest and leverage.</small></div>' +
+      '<div class="field"><label for="dps">Dividend per share ($)</label><input id="dps" inputmode="decimal" value="' + esc(dr.dps) + '"><small>Paid at year-end on all shares. Cash you pay out cannot fund projects.</small></div>' +
+      '<div class="field"><label for="credit">Credit terms to customers</label><select id="credit">' + opt('net30', dr.credit, 'Net 30 — strict: no sales lift, 0.3% bad debt, 30 days of receivables') + opt('net45', dr.credit, 'Net 45 — standard: +2.5% sales, 0.6% bad debt, 45 days') + opt('net60', dr.credit, 'Net 60 — generous: +4% sales, 1.2% bad debt, 60 days') + '</select></div>' +
+      '<div class="field"><label for="inventory">Inventory policy</label><select id="inventory">' + opt('lean', dr.inventory, 'Lean — 30 days of stock, lose 3% of sales to stockouts') + opt('normal', dr.inventory, 'Normal — 55 days of stock') + opt('heavy', dr.inventory, 'Heavy — 80 days of stock, 1% of sales in carrying cost') + '</select></div>' +
+      '</div><p class="note" style="margin-top:.8rem">If cash runs out during the year the bank lends automatically at the market rate plus 3 points (' + pct(st.rate + 0.03) + ' this year).</p></div>';
+
+    html += '<div class="panel rationale"><h3>Step 5 · Your memo to the CEO</h3><p class="note">Which projects you accepted and why (cite the NPVs), how you are paying for them, your credit, inventory and dividend choices, and what you expect this year’s event to do. This is the part you will analyze later.</p><textarea id="why" placeholder="At least a few sentences.">' + esc(dr.why) + '</textarea><div class="actions"><button class="btn primary" id="reviewBtn">Review my decisions</button><span class="note" id="closeNote">Nothing is final until you confirm on the review screen. Your choices are saved as you go.</span></div></div>';
+    html += '<div class="modal" id="reviewModal" hidden role="dialog" aria-modal="true" aria-labelledby="reviewTitle"><div class="modal-card" id="reviewCard"></div></div>';
+    main.innerHTML = html;
+
+    // ---- wiring ----
+    function readDraft() {
+      dr.accept = Array.prototype.map.call(main.querySelectorAll('.acc:checked'), function (c) { return c.value; });
+      ['bonds', 'stock', 'repay', 'dps'].forEach(function (f) { dr[f] = $('#' + f).value; });
+      dr.credit = $('#credit').value; dr.inventory = $('#inventory').value; dr.why = $('#why').value;
+      dr.cf = $('#cfIn').value; dr.rate = $('#rIn').value;
+    }
+    function persist() { readDraft(); save(); updateSummary(); }
+    main.querySelectorAll('input, select, textarea').forEach(function (el) { if (el.closest('#reviewModal')) return; el.addEventListener('input', persist); el.addEventListener('change', persist); });
+    main.querySelectorAll('.acc').forEach(function (c) { c.addEventListener('change', function () { c.closest('tr').classList.toggle('chosen', c.checked); }); });
+    // record only the student's own clicks (browsers also fire 'toggle' on first render)
+    $('#howto summary').addEventListener('click', function () { setTimeout(function () { g.howtoOpen = $('#howto').open; save(); }, 0); });
+
+    function runFor(p) { var cfs = FS.projectCFs(p); return dr.runs.filter(function (r) { return Math.abs(r.r - 0.10) < 1e-9 && sameFlows(r.cfs, cfs); })[0]; }
+    function updateSummary() {
+      var chosen = menu.filter(function (p) { return dr.accept.indexOf(p.id) >= 0; });
+      var cost = chosen.reduce(function (a, p) { return a + p.cost; }, 0);
+      var b = parseNum(dr.bonds), s = parseNum(dr.stock), rp = parseNum(dr.repay);
+      var fin = (isNaN(b) ? 0 : b) + (isNaN(s) ? 0 : s) - (isNaN(rp) ? 0 : rp);
+      var after = st.cash + fin - cost;
+      $('#selSum').innerHTML = '<span>Accepted: <b>' + (chosen.length ? chosen.map(function (p) { return p.id; }).join(', ') : 'none') + '</b></span><span>Total cost <b>' + k(cost) + '</b></span><span>Cash now <b>' + k(st.cash) + '</b></span><span>Net financing <b>' + (fin >= 0 ? '+' : '') + k(fin) + '</b></span><span>Cash after projects <b class="' + (after < 0 ? 'neg' : '') + '">' + k(after) + '</b></span>';
+      menu.forEach(function (p) {
+        var r = runFor(p), el = main.querySelector('[data-ev="' + p.id + '"]');
+        el.innerHTML = r ? '<span class="badge good">Evaluated · NPV ' + fmt(r.npv, 2) + '</span>' : '<span class="badge">Not evaluated yet</span>';
+      });
+    }
+    function renderRuns() {
+      var out = $('#runs');
+      if (!dr.runs.length) { out.innerHTML = ''; return; }
+      out.innerHTML = '<h4>Your calculations this year</h4><div class="wide"><table class="fin runs"><tr><th>Project</th><td>Rate</td><td>NPV</td><td>IRR</td><td>Payback</td><td>PI</td></tr>' + dr.runs.map(function (r) {
+        var p = menu.filter(function (q) { return sameFlows(FS.projectCFs(q), r.cfs); })[0];
+        return '<tr><th>' + (p ? p.id + ' ' + esc(p.name) : 'Custom: ' + esc(flowsText(r.cfs))) + '</th><td>' + pct(r.r, 1) + '</td><td>' + fmt(r.npv, 2) + '</td><td>' + (isNaN(r.irr) ? 'n/a' : pct(r.irr, 2)) + '</td><td>' + (isNaN(r.pb) ? 'never' : fmt(r.pb, 2) + ' yrs') + '</td><td>' + fmt(r.pi, 3) + '</td></tr>';
+      }).join('') + '</table></div>';
+    }
+    function calc() {
+      var raw = $('#cfIn').value.split(/[,;\s]+/).filter(function (x) { return x !== ''; });
+      var cfs = raw.map(parseNum), r = parseNum($('#rIn').value) / 100, out = $('#calcOut');
+      if (cfs.length < 2 || cfs.some(isNaN) || isNaN(r) || $('#rIn').value.trim() === '') { out.innerHTML = '<p class="note">Enter at least two cash flows (year 0 first) and a rate.</p>'; return; }
+      var warn = cfs[0] >= 0 ? '<p class="note warn-text">Year 0 should be the cost as a negative number, for example −' + fmt(Math.abs(cfs[0]) || 1000, 0) + '.</p>' : '';
+      var n = FS.npv(r, cfs), i = FS.irr(cfs), pb = FS.payback(cfs), pi = FS.profitabilityIndex(r, cfs);
+      out.innerHTML = warn + '<div><span>NPV</span><b class="num">' + fmt(n, 2) + '</b></div><div><span>IRR</span><b class="num">' + (isNaN(i) ? 'n/a' : pct(i, 2)) + '</b></div><div><span>Payback</span><b class="num">' + (isNaN(pb) ? 'never' : fmt(pb, 2) + ' yrs') + '</b></div><div><span>PI</span><b class="num">' + fmt(pi, 3) + '</b></div>';
+      dr.runs = dr.runs.filter(function (x) { return !(sameFlows(x.cfs, cfs) && Math.abs(x.r - r) < 1e-9); });
+      dr.runs.push({ cfs: cfs, r: r, npv: n, irr: i, pb: pb, pi: pi });
+      if (dr.runs.length > 12) dr.runs.shift();
+      logEvent('calc', { year: yr, cfs: cfs, r: r, npv: Math.round(n * 100) / 100 });
+      persist(); renderRuns();
+    }
+    $('#calcBtn').onclick = calc;
+    $('#cfIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') calc(); });
+    $('#rIn').addEventListener('keydown', function (e) { if (e.key === 'Enter') calc(); });
+    main.querySelectorAll('[data-load]').forEach(function (b) {
+      b.addEventListener('click', function () {
+        var p = menu.filter(function (q) { return q.id === b.dataset.load; })[0];
+        $('#cfIn').value = flowsText(FS.projectCFs(p)); $('#rIn').value = '10';
+        logEvent('load', { year: yr, project: p.id });
+        calc(); $('#cfIn').focus();
+      });
+    });
+    updateSummary(); renderRuns();
+
+    // ---- review ----
+    var modal = $('#reviewModal'), lastFocus = null;
+    function closeModal() { modal.hidden = true; document.body.style.overflow = ''; if (lastFocus) lastFocus.focus(); }
+    modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+    modal.addEventListener('keydown', function (e) { if (e.key === 'Escape') closeModal(); });
+    $('#reviewBtn').onclick = function () {
+      readDraft(); save();
+      var why = dr.why.trim();
+      if (why.length < 40) { $('#closeNote').textContent = 'Write at least a couple of sentences in your memo first — the review checks it against your choices, and the debrief depends on it.'; $('#why').focus(); return; }
+      var rv = buildReview(st, yr, menu, dr);
+      dr.reviews = (dr.reviews || 0) + 1; save();
+      logEvent('review', { year: yr, flags: rv.flags.length });
+      $('#reviewCard').innerHTML = rv.html;
+      lastFocus = document.activeElement; modal.hidden = false; document.body.style.overflow = 'hidden';
+      $('#backEdit').focus();
+      $('#backEdit').onclick = closeModal;
+      $('#confirmYear').onclick = function () {
+        g.state = FS.simulateYear(st, rv.decision);
+        g.rationales.push({ year: yr, text: why, flags: rv.flags.map(function (f) { return f.text; }), reviews: dr.reviews });
+        logEvent('year', { year: yr, decision: rv.decision, price: g.state.price, flagsAtConfirm: rv.flags.length });
+        g.draft = null; save(); closeModal(); renderCapstone(); window.scrollTo(0, 0);
+      };
+    };
+  }
+
+  function buildReview(st, yr, menu, dr) {
+    var flags = [], memo = dr.why.toLowerCase();
+    var add = function (text, kind) { flags.push({ text: text, kind: kind || 'check' }); };
+    var vals = {};
+    [['bonds', 'Bonds'], ['stock', 'New stock'], ['repay', 'Debt repayment'], ['dps', 'Dividend per share']].forEach(function (f) {
+      var v = parseNum(dr[f[0]]);
+      if (isNaN(v)) { add(f[1] + ': “' + dr[f[0]] + '” is not a number, so it will be read as 0.', 'fix'); v = 0; }
+      if (v < 0) { add(f[1] + ' is negative; it will be read as 0.', 'fix'); v = 0; }
+      vals[f[0]] = v;
+    });
+    var decision = { accept: dr.accept.slice(), finance: { bonds: vals.bonds, stock: vals.stock, repay: vals.repay }, credit: dr.credit, inventory: dr.inventory, dps: vals.dps };
+    var chosen = menu.filter(function (p) { return dr.accept.indexOf(p.id) >= 0; });
+    var cost = chosen.reduce(function (a, p) { return a + p.cost; }, 0);
+    var inflow = st.cash + vals.bonds + vals.stock;
+    var repayEff = Math.min(vals.repay, st.ltd, Math.max(0, inflow));
+    var after = inflow - repayEff - cost;
+    var newShares = vals.stock > 0 ? vals.stock / (st.price * 0.95) : 0;
+    var divCash = vals.dps * (st.shares + newShares);
+    var runFor = function (p) { var cfs = FS.projectCFs(p); return dr.runs.filter(function (r) { return Math.abs(r.r - 0.10) < 1e-9 && sameFlows(r.cfs, cfs); })[0]; };
+
+    // cash and financing
+    if (vals.repay > repayEff + 0.5) add('You asked to repay ' + k(vals.repay) + ' of debt, but only ' + k(repayEff) + ' can be repaid from the cash and debt you have. The repayment will be capped.');
+    if (after < 0) add('Projects and repayments cost ' + k(-after) + ' more than the cash you will have. The bank will lend that at ' + pct(st.rate + 0.03) + ', more than new bonds would cost (' + pct(st.rate) + ').');
+    else if (after < 300) add('Only ' + k(after) + ' of cash is left after projects, and dividends of about ' + k(divCash) + ' are due at year-end. A slow year could still push you onto the emergency bank line.');
+    if (vals.bonds > 0 && vals.repay > 0) add('You are issuing new bonds and repaying old debt in the same year. Make sure that is intended.');
+    if (vals.dps > 0 && st.history.length && vals.dps > st.history[st.history.length - 1].eps) add('The dividend of ' + money(vals.dps, 2) + ' a share is more than last year’s EPS of ' + money(st.history[st.history.length - 1].eps, 2) + '. You would be paying out more than the firm earned.');
+
+    // projects vs the student's own calculations
+    menu.forEach(function (p) {
+      var r = runFor(p), took = dr.accept.indexOf(p.id) >= 0;
+      if (took && !r) add('You accepted ' + p.id + ' ' + p.name + ' without running it through the calculator at 10%.');
+      if (r && took && r.npv < 0) add('Your own calculation shows an NPV of ' + fmt(r.npv, 2) + ' for ' + p.id + ' ' + p.name + ', but you accepted it.');
+      if (r && !took && r.npv > 0) add('Your own calculation shows a positive NPV (' + fmt(r.npv, 2) + ') for ' + p.id + ' ' + p.name + ', but you declined it. If that was a financing choice, say so in your memo.');
+    });
+
+    // memo vs choices (keyword checks)
+    var mentions = function (p) { return memo.indexOf(p.id.toLowerCase()) >= 0 || (PKEYS[p.id] || []).some(function (w) { return memo.indexOf(w) >= 0; }); };
+    menu.forEach(function (p) {
+      var took = dr.accept.indexOf(p.id) >= 0;
+      if (took && !mentions(p)) add('You accepted ' + p.id + ' ' + p.name + ', but your memo does not mention it.');
+      if (!took && mentions(p) && !/(declin|reject|pass|skip|not (take|accept|do|pursue)|turn(ed)? down|negative npv)/.test(memo)) add('Your memo mentions ' + p.name + ', which you have not selected.');
+    });
+    var bondWords = /\bbonds?\b|borrow/.test(memo);
+    if (vals.bonds > 0 && !/\bbonds?\b|borrow|debt/.test(memo)) add('You are issuing ' + k(vals.bonds) + ' of bonds, but your memo does not explain the borrowing.');
+    if (vals.bonds === 0 && bondWords && !/no (new )?(bonds?|borrowing)|not (issue|issuing|borrow)|without (bonds?|borrowing)/.test(memo)) add('Your memo mentions bonds or borrowing, but the bond amount is 0.');
+    var stockWords = /(issu\w*|sell\w*|rais\w*)\s+(\w+\s+)?(new\s+)?(stock|shares|equity)|new (stock|shares|equity)|equity (issue|financing)/.test(memo);
+    if (vals.stock > 0 && !/stock|shares|equity/.test(memo)) add('You are issuing ' + k(vals.stock) + ' of new stock, but your memo does not explain it.');
+    if (vals.stock === 0 && stockWords && !/no new (stock|shares|equity)|not (issue|issuing|sell)/.test(memo)) add('Your memo talks about issuing stock, but the new-stock amount is 0.');
+    var repayWords = /repay|pay (down|off)|retire/.test(memo);
+    if (vals.repay > 0 && !repayWords) add('You are repaying ' + k(vals.repay) + ' of debt, but your memo does not mention it.');
+    if (vals.repay === 0 && repayWords && !/not (repay|pay)|no repay/.test(memo)) add('Your memo mentions repaying debt, but the repayment amount is 0.');
+    var net = memo.match(/net[\s-]?(30|45|60)/);
+    if (net && 'net' + net[1] !== dr.credit) add('Your memo mentions net ' + net[1] + ', but credit terms are set to ' + FS.CAP.credit[dr.credit].label + '.');
+    if (/\blean\b/.test(memo) && dr.inventory !== 'lean') add('Your memo mentions lean inventory, but inventory policy is set to ' + FS.CAP.inventory[dr.inventory].label + '.');
+    if (/\bheavy\b|stock up|build (up )?inventory/.test(memo) && dr.inventory !== 'heavy') add('Your memo mentions building inventory, but inventory policy is set to ' + FS.CAP.inventory[dr.inventory].label + '.');
+    var dm = memo.match(/dividend[^.\n]{0,40}?\$\s?(\d+(?:\.\d+)?)/) || memo.match(/\$\s?(\d+(?:\.\d+)?)[^.\n$]{0,25}dividend/);
+    if (dm && parseFloat(dm[1]) < 20 && Math.abs(parseFloat(dm[1]) - vals.dps) > 0.005) add('Your memo mentions a dividend of $' + dm[1] + ', but the dividend is set to ' + money(vals.dps, 2) + ' a share.');
+    if (/(cut|suspend|eliminat\w*|skip|no|zero|stop\w*) (the |our |any )?dividends?|dividends? (to|of) (zero|\$0(\.00)?\b)/.test(memo) && vals.dps > 0) add('Your memo suggests cutting or skipping the dividend, but it is set to ' + money(vals.dps, 2) + ' a share.');
+
+    // ---- markup ----
+    var h = '<div class="kicker">Year ' + yr + ' · ' + esc(FS.CAP.events[yr - 1].title) + '</div><h2 id="reviewTitle">Review before you close the books</h2><p class="note">This is exactly what will be submitted. Go back to change anything; nothing happens until you confirm.</p>';
+    h += '<h4>Projects</h4><div class="wide"><table class="fin"><tr><th>Proposal</th><td>Decision</td><td>Cost</td><td>Your NPV at 10%</td></tr>' + menu.map(function (p) {
+      var r = runFor(p), took = dr.accept.indexOf(p.id) >= 0;
+      return '<tr><th>' + p.id + ' ' + esc(p.name) + '</th><td>' + (took ? '<span class="badge good">Accept</span>' : '<span class="badge">Decline</span>') + '</td><td>' + k(p.cost) + '</td><td>' + (r ? fmt(r.npv, 2) : '<span class="muted">not evaluated</span>') + '</td></tr>';
+    }).join('') + '</table></div>';
+    h += '<h4>Cash at the start of the year</h4><div class="cashplan">' +
+      ll('Cash on hand now', st.cash) + (vals.bonds ? ll('+ New bonds at ' + pct(st.rate), vals.bonds) : '') + (vals.stock ? ll('+ New stock (≈' + fmt(newShares, 0) + 'K shares)', vals.stock) : '') + (repayEff ? ll('− Debt repaid', -repayEff) : '') + (cost ? ll('− Projects accepted', -cost) : '') +
+      '<div class="ledger-line tot' + (after < 0 ? ' neg' : '') + '"><span>Cash after these choices</span><b>' + (after < 0 ? '(' + fmt(-after, 0) + ')' : fmt(after, 0)) + '</b></div></div>' +
+      '<p class="note">Dividends due at year-end: ' + money(vals.dps, 2) + ' × ' + fmt(st.shares + newShares, 0) + 'K shares ≈ <b>' + k(divCash) + '</b>, paid from this cash plus the year’s operating cash flow.</p>';
+    h += '<h4>Policies</h4><div class="cashplan">' + ll('Credit terms', FS.CAP.credit[dr.credit].label, '', true) + ll('Inventory', FS.CAP.inventory[dr.inventory].label, '', true) + ll('Dividend per share', money(vals.dps, 2), '', true) + '</div>';
+    h += '<h4>Your memo</h4><div class="memo-quote">' + esc(dr.why.trim()) + '</div>';
+    h += '<h4>Checks</h4>';
+    if (flags.length) {
+      h += '<p class="note">The memo checks look for keywords, so they can raise a false alarm (for example, a project you mention only to explain why you declined it). Fix real mismatches; you can still confirm with checks showing, and they are noted in your report.</p><ul class="checks">' + flags.map(function (f) { return '<li><span class="badge ' + (f.kind === 'fix' ? 'crit' : 'warn') + '">' + (f.kind === 'fix' ? 'Fix' : 'Check') + '</span><span>' + esc(f.text) + '</span></li>'; }).join('') + '</ul>';
+    } else h += '<ul class="checks"><li><span class="badge good">OK</span><span>Your memo and your choices line up, and the cash plan covers what you accepted.</span></li></ul>';
+    h += '<div class="actions"><button class="btn" id="backEdit">Back to edit</button><button class="btn primary" id="confirmYear">Confirm and close Year ' + yr + '</button></div>';
+    return { html: h, flags: flags, decision: decision };
+  }
+  function tile(label, value, sub, cls) { return '<div class="stat ' + (cls || '') + '"><div class="stat-label">' + label + '</div><div class="stat-value">' + value + '</div><div class="stat-sub">' + sub + '</div></div>'; }
+
+  // ---------- benchmark: do nothing, standard policies, $0.50 dividend ----------
+  function benchmark() {
+    var s = FS.initialState();
+    for (var y = 1; y <= 5; y++) s = FS.simulateYear(s, { accept: [], finance: {}, credit: 'net45', inventory: 'normal', dps: 0.5 });
+    return s;
+  }
+
+  // ---------- debrief ----------
+  function renderDebrief() {
+    var g = state.game, st = g.state, hist = st.history, bm = benchmark();
+    var html = '<div class="pagehead"><div class="eyebrow"><span>Debrief</span><span>' + (state.name ? esc(state.name) : 'Unnamed student') + '</span></div><h1>What you decided, and what it was worth</h1><div class="firm">Scenario accuracy, the capstone’s value ledger, and your own reasoning side by side.</div></div>';
+
+    // scenarios summary
+    html += '<div class="panel"><h3>Guided scenarios</h3><div class="wide"><table class="fin"><tr><th>Scenario</th><th>Attempts</th><th>Correct on first check</th><th>Final</th><th>Solution shown</th><th>Concepts</th><th>Decision</th></tr>';
+    var firstTry = 0, totalQ = 0;
+    SC.forEach(function (s) {
+      var p = state.scenarios[s.id];
+      var first = state.log.filter(function (e) { return e.kind === 'check' && e.detail.scenario === s.id; })[0];
+      var nq = s.questions.length; totalQ += nq;
+      var fc = first ? first.detail.correct : 0; firstTry += fc;
+      var fin = p ? s.questions.filter(function (q) { return p.results[q.id] === true; }).length : 0;
+      var mc = p ? s.mcq.filter(function (m) { return p.mcq[m.id] === m.correct; }).length : 0;
+      var dec = p && p.decision != null ? (s.decision.options[p.decision].correct ? '<span class="badge good">Sound</span>' : '<span class="badge warn">Revisit</span>') : '<span class="badge">—</span>';
+      html += '<tr><th>' + s.ch + ' · ' + esc(s.title) + '</th><td>' + (p ? p.attempts : 0) + '</td><td>' + (nq ? fc + ' / ' + nq : '—') + '</td><td>' + (nq ? fin + ' / ' + nq : '—') + '</td><td>' + (p && p.solutionViewed ? 'yes' : 'no') + '</td><td>' + (s.mcq.length ? mc + ' / ' + s.mcq.length : '—') + '</td><td style="text-align:left">' + dec + '</td></tr>';
+    });
+    html += '</table></div><p class="note" style="margin-top:.6rem">First-check accuracy across all numeric questions: <b>' + firstTry + ' / ' + totalQ + '</b>. Attempts and solution views are part of the process record, not a penalty — use them in your write-up.</p></div>';
+
+    if (!hist.length) {
+      html += '<div class="panel copper"><h3>The capstone has not started</h3><p>Run at least one year of Ridgeline Outfitters to see the value ledger and charts here.</p><div class="actions"><button class="btn primary" id="toCap">Go to the capstone</button></div></div>';
+      main.innerHTML = html; $('#toCap').onclick = function () { go('capstone'); }; return;
+    }
+
+    var last = hist[hist.length - 1], bmh = bm.history[hist.length - 1];
+    var sc = FS.finalScore(st);
+    var beat = last.tsr - bmh.tsr;
+    html += '<div class="stats">' + tile('Share price', money(last.price, 2), 'opened at ' + money(st.openingPrice, 2)) + tile('Dividends per share', money(last.cumDiv, 2), 'cumulative') + tile('Your total return', pct(last.tsr), 'price change + dividends', last.tsr >= 0 ? 'up' : 'down') + tile('Do-nothing benchmark', pct(bmh.tsr), 'no projects, standard policy') + tile('Versus benchmark', (beat >= 0 ? '+' : '') + pct(beat), beat >= 0 ? 'you added value' : 'you gave value away', beat >= 0 ? 'up' : 'down') + '</div>';
+
+    // charts
+    html += '<div class="grid2"><div class="panel"><h3>Share price by year</h3><div class="legend"><span><i class="s1"></i>You</span><span><i class="s2"></i>Do-nothing benchmark</span></div>' + lineChart([{ cls: 's1', pts: [st.openingPrice].concat(hist.map(function (h) { return h.price; })) }, { cls: 's2', pts: [bm.openingPrice].concat(bm.history.slice(0, hist.length).map(function (h) { return h.price; })) }], ['Start', 'Y1', 'Y2', 'Y3', 'Y4', 'Y5'].slice(0, hist.length + 1), '$') + '</div>' +
+      '<div class="panel"><h3>Value created by project choices ($000 NPV)</h3><div class="legend"><span><i class="s1"></i>NPV of projects you took (positive)</span><span><i class="s2"></i>Negative</span><span><i class="box"></i>Best available that year</span></div>' + barChart(hist.map(function (h) { return { label: 'Y' + h.year, v: h.projectValue, avail: FS.CAP.projects[h.year].reduce(function (a, p) { var n = FS.projectStats(p, FS.CAP.requiredReturn).npv; return a + (n > 0 ? n : 0); }, 0) }; })) + '</div></div>';
+
+    // project ledger
+    html += '<div class="panel"><h3>Project ledger</h3><p class="note">Every proposal you saw, priced at the 10% required return. The rule the course teaches: take every positive-NPV project you can finance, and nothing else.</p>';
+    hist.forEach(function (h) {
+      FS.CAP.projects[h.year].forEach(function (p) {
+        var s = FS.projectStats(p, FS.CAP.requiredReturn), took = h.accepted.indexOf(p.id) >= 0, good = s.npv > 0;
+        var verdict = took && good ? 'Took a value-adding project.' : took && !good ? 'Took a value-destroying project — IRR ' + pct(s.irr) + ' is below the 10% hurdle.' : !took && good ? 'Passed on ' + k(s.npv) + ' of value.' : 'Correctly declined.';
+        html += '<div class="verdict ' + ((took === good) ? 'hit' : 'miss') + '"><b>Year ' + h.year + ' · ' + esc(p.name) + '</b> — NPV <span class="num">' + k(s.npv) + '</span>, IRR <span class="num">' + pct(s.irr) + '</span>, payback <span class="num">' + fmt(s.payback, 1) + ' yrs</span>. ' + (took ? 'Accepted. ' : 'Declined. ') + verdict + '</div>';
+      });
+    });
+    html += '<p class="note">Total NPV of projects you accepted: <b>' + k(sc.valueCreated) + '</b> of <b>' + k(sc.menuValue) + '</b> available.</p></div>';
+
+    // ratio trends
+    html += '<div class="panel"><h3>Financial statement trends</h3><div class="wide"><table class="fin"><tr><th>Year</th>' + hist.map(function (h) { return '<td>' + h.year + ' · ' + esc(h.event) + '</td>'; }).join('') + '</tr>' +
+      trow('Sales ($000)', hist, function (h) { return fmt(h.sales, 0); }) + trow('Net income ($000)', hist, function (h) { return fmt(h.ni, 0); }) + trow('EPS', hist, function (h) { return money(h.eps, 2); }) + trow('Cash from operations', hist, function (h) { return fmt(h.cfo, 0); }) + trow('Capital spending', hist, function (h) { return fmt(h.capex, 0); }) + trow('Year-end cash', hist, function (h) { return fmt(h.cash, 0); }) + trow('Emergency bank line', hist, function (h) { return fmt(h.std, 0); }) + trow('Current ratio', hist, function (h) { return h.curRatio.toFixed(2); }) + trow('Debt / equity', hist, function (h) { return h.de.toFixed(2); }) + trow('Times interest earned', hist, function (h) { return h.tie.toFixed(1); }) + trow('Profit margin', hist, function (h) { return pct(h.pm); }) + trow('ROE', hist, function (h) { return pct(h.roe); }) + trow('Market rate', hist, function (h) { return pct(h.rate); }) + trow('Share price', hist, function (h) { return money(h.price, 2); }) +
+      '</table></div></div>';
+
+    // decision log
+    html += '<div class="panel"><h3>Your decisions and reasoning</h3><div class="log">';
+    hist.forEach(function (h, i) {
+      var d = h.decision, r = g.rationales[i];
+      html += '<div class="entry"><div class="when">Year ' + h.year + '</div><div><b>' + esc(h.event) + '.</b> Accepted: ' + (h.accepted.length ? h.accepted.join(', ') : 'nothing') + '. Bonds ' + k(d.finance.bonds || 0) + ', stock ' + k(d.finance.stock || 0) + ', repaid ' + k(d.finance.repay || 0) + '. Credit ' + FS.CAP.credit[d.credit].label + '; inventory ' + FS.CAP.inventory[d.inventory].label + '; dividend ' + money(d.dps, 2) + '.' + (h.notes.length ? ' <i>' + esc(h.notes.join(' ')) + '</i>' : '') + '<div class="note" style="margin-top:.3rem;white-space:pre-wrap">' + (r ? esc(r.text) : '') + '</div>' + (r && r.reviews != null ? '<div class="note" style="margin-top:.3rem">Reviewed ' + r.reviews + ' time' + (r.reviews === 1 ? '' : 's') + ' before closing. ' + (r.flags && r.flags.length ? 'Checks still showing at confirmation: ' + r.flags.map(esc).join(' · ') : 'No checks showing at confirmation.') + '</div>' : '') + '</div></div>';
+    });
+    html += '</div></div>';
+
+    // reflection & report
+    html += '<div class="panel reflect"><h3>Looking back</h3><p class="note">Where did your reasoning hold up, and where did the results surprise you? Which decision would you change, and which criterion (NPV, IRR, payback, a ratio) would you rely on more next time?</p><textarea id="gRefl">' + esc(g.reflection) + '</textarea><div class="actions"><button class="btn primary" id="saveG">Save</button><span class="note" id="gNote">' + (g.reflection ? 'Saved.' : '') + '</span></div></div>';
+    html += '<div class="panel"><h3>Report for submission</h3><p class="note">Copy this into your Canvas submission or a document. It contains everything above in plain text.</p><div class="actions" style="margin:0 0 .6rem"><button class="btn primary" id="copyRep">Copy report</button><button class="btn" id="printRep">Print</button><span class="note" id="copyNote"></span></div><textarea class="report" id="report" readonly>' + esc(buildReport(bm)) + '</textarea></div>';
+    main.innerHTML = html;
+    $('#saveG').onclick = function () { g.reflection = $('#gRefl').value; save(); $('#gNote').textContent = 'Saved.'; $('#report').value = buildReport(bm); };
+    $('#copyRep').onclick = function () {
+      var ta = $('#report'); ta.select();
+      var ok = false; try { ok = document.execCommand('copy'); } catch (e) { }
+      if (navigator.clipboard) navigator.clipboard.writeText(ta.value).then(function () { $('#copyNote').textContent = 'Copied.'; }, function () { $('#copyNote').textContent = ok ? 'Copied.' : 'Select the text and copy it manually.'; });
+      else $('#copyNote').textContent = ok ? 'Copied.' : 'Select the text and copy it manually.';
+    };
+    $('#printRep').onclick = function () { window.print(); };
+    wireTips();
+  }
+  function trow(l, hist, f) { return '<tr><th>' + l + '</th>' + hist.map(function (h) { return '<td>' + f(h) + '</td>'; }).join('') + '</tr>'; }
+
+  function buildReport(bm) {
+    var g = state.game, st = g.state, hist = st.history, L = [];
+    L.push('RIDGELINE FINANCE LAB — REPORT'); L.push('Student: ' + (state.name || '(no name entered)')); L.push('Generated: ' + new Date().toLocaleString()); L.push('');
+    L.push('GUIDED SCENARIOS');
+    SC.forEach(function (s) {
+      var p = state.scenarios[s.id];
+      var first = state.log.filter(function (e) { return e.kind === 'check' && e.detail.scenario === s.id; })[0];
+      var fin = p ? s.questions.filter(function (q) { return p.results[q.id] === true; }).length : 0;
+      var mc = p ? s.mcq.filter(function (m) { return p.mcq[m.id] === m.correct; }).length : 0;
+      L.push(s.ch + ' ' + s.title + ' — attempts ' + (p ? p.attempts : 0) + (s.questions.length ? ', first check ' + (first ? first.detail.correct : 0) + '/' + s.questions.length + ', final ' + fin + '/' + s.questions.length : '') + (s.mcq.length ? ', concepts ' + mc + '/' + s.mcq.length : '') + ', solution shown: ' + (p && p.solutionViewed ? 'yes' : 'no') + ', decision: ' + (p && p.decision != null ? (s.decision.options[p.decision].correct ? 'sound' : 'revisit') : 'none'));
+      if (p && p.reflection) L.push('   Reflection: ' + p.reflection.replace(/\s+/g, ' '));
+    });
+    L.push('');
+    if (hist.length) {
+      var last = hist[hist.length - 1], bmh = bm.history[hist.length - 1], sc = FS.finalScore(st);
+      L.push('CAPSTONE: RIDGELINE OUTFITTERS (' + hist.length + ' of 5 years)');
+      L.push('Opening price $' + st.openingPrice.toFixed(2) + ' -> ending price $' + last.price.toFixed(2) + '; dividends $' + last.cumDiv.toFixed(2) + '/share; total return ' + pct(last.tsr) + ' vs do-nothing benchmark ' + pct(bmh.tsr));
+      L.push('NPV of accepted projects $' + fmt(sc.valueCreated, 0) + 'K of $' + fmt(sc.menuValue, 0) + 'K available');
+      hist.forEach(function (h, i) {
+        var d = h.decision, r = g.rationales[i];
+        L.push(''); L.push('Year ' + h.year + ' (' + h.event + '): accepted ' + (h.accepted.length ? h.accepted.join(', ') : 'none') + '; bonds ' + fmt(d.finance.bonds || 0, 0) + 'K; stock ' + fmt(d.finance.stock || 0, 0) + 'K; repaid ' + fmt(d.finance.repay || 0, 0) + 'K; ' + FS.CAP.credit[d.credit].label + '; ' + FS.CAP.inventory[d.inventory].label + '; DPS $' + d.dps.toFixed(2));
+        L.push('   Results: sales ' + fmt(h.sales, 0) + 'K, NI ' + fmt(h.ni, 0) + 'K, EPS $' + h.eps.toFixed(2) + ', cash ' + fmt(h.cash, 0) + 'K, LTD ' + fmt(h.ltd, 0) + 'K, CR ' + h.curRatio.toFixed(2) + ', D/E ' + h.de.toFixed(2) + ', TIE ' + h.tie.toFixed(1) + ', ROE ' + pct(h.roe) + ', price $' + h.price.toFixed(2) + (h.notes.length ? ' | ' + h.notes.join(' ') : ''));
+        FS.CAP.projects[h.year].forEach(function (p) { var s = FS.projectStats(p, 0.10); L.push('   ' + p.id + ' ' + p.name + ': NPV ' + fmt(s.npv, 0) + 'K, IRR ' + pct(s.irr) + ' — ' + (h.accepted.indexOf(p.id) >= 0 ? 'ACCEPTED' : 'declined')); });
+        if (r) L.push('   Reasoning: ' + r.text.replace(/\s+/g, ' '));
+        if (r && r.reviews != null) L.push('   Review: ' + r.reviews + ' review(s); checks at confirmation: ' + (r.flags && r.flags.length ? r.flags.join(' | ') : 'none'));
+      });
+      if (g.reflection) { L.push(''); L.push('Looking back: ' + g.reflection.replace(/\s+/g, ' ')); }
+    }
+    L.push(''); L.push('ACTIVITY LOG (' + state.log.length + ' events)');
+    state.log.forEach(function (e) { L.push(e.t.slice(0, 16).replace('T', ' ') + '  ' + e.kind + '  ' + JSON.stringify(e.detail)); });
+    return L.join('\n');
+  }
+
+  // ---------- charts (inline SVG) ----------
+  function lineChart(series, labels, unit) {
+    var W = 520, H = 260, m = { t: 16, r: 16, b: 32, l: 48 };
+    var all = series.reduce(function (a, s) { return a.concat(s.pts); }, []);
+    var lo = 0, hi = Math.max.apply(null, all) * 1.12 || 1;
+    var step = niceStep(hi / 4); hi = Math.ceil(hi / step) * step;
+    var n = labels.length, x = function (i) { return m.l + (W - m.l - m.r) * (n === 1 ? 0 : i / (n - 1)); }, y = function (v) { return m.t + (H - m.t - m.b) * (1 - (v - lo) / (hi - lo)); };
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Share price by year"><g class="grid">';
+    for (var v = lo; v <= hi + 1e-9; v += step) svg += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y(v) + '" y2="' + y(v) + '"/>';
+    svg += '</g><g class="axis">';
+    for (v = lo; v <= hi + 1e-9; v += step) svg += '<text x="' + (m.l - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + (unit === '$' ? '$' : '') + fmt(v, 0) + '</text>';
+    labels.forEach(function (l, i) { svg += '<text x="' + x(i) + '" y="' + (H - 10) + '" text-anchor="middle">' + l + '</text>'; });
+    svg += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y(lo) + '" y2="' + y(lo) + '"/></g>';
+    series.forEach(function (s) {
+      svg += '<polyline class="' + s.cls + '" fill="none" stroke-width="2" stroke-linejoin="round" points="' + s.pts.map(function (p, i) { return x(i) + ',' + y(p); }).join(' ') + '"/>';
+      s.pts.forEach(function (p, i) { svg += '<circle class="' + s.cls + 'f" cx="' + x(i) + '" cy="' + y(p) + '" r="' + (i === s.pts.length - 1 ? 5 : 3.5) + '" stroke="var(--paper-2)" stroke-width="2"/>'; });
+      var lastP = s.pts[s.pts.length - 1];
+      svg += '<text class="lbl" x="' + (x(s.pts.length - 1) - 8) + '" y="' + (y(lastP) - 9) + '" text-anchor="end">$' + fmt(lastP, 2) + '</text>';
+    });
+    labels.forEach(function (l, i) { svg += '<rect class="hit" x="' + (x(i) - 18) + '" y="' + m.t + '" width="36" height="' + (H - m.t - m.b) + '" data-tip="' + l + ': ' + series.map(function (s) { return '$' + fmt(s.pts[i], 2); }).join(' vs ') + '" data-x="' + x(i) + '" data-y="' + y(Math.max.apply(null, series.map(function (s) { return s.pts[i]; }))) + '"/>'; });
+    return '<div class="chart">' + svg + '</svg><div class="tip"></div></div>';
+  }
+  function barChart(rows) {
+    var W = 520, H = 260, m = { t: 16, r: 16, b: 32, l: 52 };
+    var vals = rows.reduce(function (a, r) { return a.concat([r.v, r.avail]); }, [0]);
+    var hi = Math.max.apply(null, vals) * 1.15 || 1, lo = Math.min.apply(null, vals) * 1.15;
+    if (lo > 0) lo = 0;
+    var step = niceStep((hi - lo) / 4); hi = Math.ceil(hi / step) * step; lo = Math.floor(lo / step) * step;
+    var n = rows.length, bw = (W - m.l - m.r) / n, y = function (v) { return m.t + (H - m.t - m.b) * (1 - (v - lo) / (hi - lo)); };
+    var svg = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="NPV of accepted projects by year"><g class="grid">';
+    for (var v = lo; v <= hi + 1e-9; v += step) svg += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y(v) + '" y2="' + y(v) + '"/>';
+    svg += '</g><g class="axis">';
+    for (v = lo; v <= hi + 1e-9; v += step) svg += '<text x="' + (m.l - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end">' + fmt(v, 0) + '</text>';
+    rows.forEach(function (r, i) {
+      var cx = m.l + bw * (i + 0.5), w = Math.min(44, bw * 0.5);
+      svg += '<text x="' + cx + '" y="' + (H - 10) + '" text-anchor="middle">' + r.label + '</text>';
+      svg += '<rect class="bar-avail" x="' + (cx - w / 2 - 4) + '" y="' + y(r.avail) + '" width="' + (w + 8) + '" height="' + Math.max(0, y(0) - y(r.avail)) + '"/>';
+      var top = Math.min(y(0), y(r.v)), h = Math.abs(y(0) - y(r.v));
+      svg += '<rect class="' + (r.v >= 0 ? 'bar-pos' : 'bar-neg') + '" x="' + (cx - w / 2) + '" y="' + top + '" width="' + w + '" height="' + h + '" rx="2"/>';
+      svg += '<text class="lbl" x="' + cx + '" y="' + (r.v >= 0 ? top - 5 : top + h + 13) + '" text-anchor="middle">' + fmt(r.v, 0) + '</text>';
+      svg += '<rect class="hit" x="' + (cx - bw / 2) + '" y="' + m.t + '" width="' + bw + '" height="' + (H - m.t - m.b) + '" data-tip="' + r.label + ': took ' + fmt(r.v, 0) + 'K of ' + fmt(r.avail, 0) + 'K available" data-x="' + cx + '" data-y="' + Math.min(top, y(r.avail)) + '"/>';
+    });
+    svg += '<line x1="' + m.l + '" x2="' + (W - m.r) + '" y1="' + y(0) + '" y2="' + y(0) + '"/></g>';
+    return '<div class="chart">' + svg + '</svg><div class="tip"></div></div>';
+  }
+  function niceStep(raw) { var p = Math.pow(10, Math.floor(Math.log10(raw || 1))), f = raw / p; return (f <= 1 ? 1 : f <= 2 ? 2 : f <= 5 ? 5 : 10) * p; }
+  function wireTips() {
+    main.querySelectorAll('.chart').forEach(function (ch) {
+      var tip = $('.tip', ch), svg = $('svg', ch);
+      ch.querySelectorAll('.hit').forEach(function (h) {
+        h.addEventListener('mouseenter', function () {
+          var r = svg.getBoundingClientRect(), vb = svg.viewBox.baseVal, sx = r.width / vb.width, sy = r.height / vb.height;
+          tip.textContent = h.dataset.tip; tip.style.left = (h.dataset.x * sx) + 'px'; tip.style.top = (h.dataset.y * sy) + 'px'; tip.style.display = 'block';
+        });
+        h.addEventListener('mouseleave', function () { tip.style.display = 'none'; });
+      });
+    });
+  }
+
+  render();
+})();
+
+
+</script>
+
+<script>
+// ── Firebase + Room Code ──
+var FB_CONFIG = {
+  apiKey: "AIzaSyCjgraSUtveFYRO50qDSuUVCmb42zDlxnU",
+  authDomain: "my-project-1577995916726.firebaseapp.com",
+  databaseURL: "https://my-project-1577995916726-default-rtdb.firebaseio.com",
+  projectId: "my-project-1577995916726",
+  storageBucket: "my-project-1577995916726.firebasestorage.app",
+  messagingSenderId: "503294518028",
+  appId: "1:503294518028:web:4e02ab026749c92c381f29"
+};
+
+window._fbDb = null;
+window._roomCode = null;
+
+function loadFirebase(callback) {
+  var s1 = document.createElement('script');
+  s1.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js';
+  s1.onload = function() {
+    var s2 = document.createElement('script');
+    s2.src = 'https://www.gstatic.com/firebasejs/10.12.0/firebase-database-compat.js';
+    s2.onload = function() {
+      try {
+        firebase.initializeApp(FB_CONFIG);
+        window._fbDb = firebase.database();
+        callback(true);
+      } catch(e) { callback(false, e); }
+    };
+    s2.onerror = function() { callback(false, 'DB SDK failed'); };
+    document.head.appendChild(s2);
+  };
+  s1.onerror = function() { callback(false, 'App SDK failed'); };
+  document.head.appendChild(s1);
+}
+
+function setRoomStatus(msg, type) {
+  var el = document.getElementById('roomStatus');
+  if (!el) return;
+  el.textContent = msg;
+  el.style.color = type === 'err' ? '#f87171' : '#4ade80';
+}
+
+function joinRoom() {
+  var raw = document.getElementById('roomCodeInput').value.trim().toUpperCase();
+  if (!raw || raw.length < 2) { setRoomStatus('Please enter a room code', 'err'); return; }
+  var code = raw.replace(/[^A-Z0-9\-]/g, '');
+  if (!code) { setRoomStatus('Letters, numbers and hyphens only', 'err'); return; }
+
+  var btn = document.getElementById('joinRoomBtn');
+  if (btn) btn.disabled = true;
+  setRoomStatus('Connecting...', '');
+
+  loadFirebase(function(ok, err) {
+    if (!ok) {
+      if (btn) btn.disabled = false;
+      setRoomStatus('Connection error — check your internet', 'err');
+      console.error('Firebase error:', err);
+      return;
+    }
+    window._roomCode = code;
+    try { localStorage.setItem('corpsim_room', code); } catch(e) {}
+
+    var ref = window._fbDb.ref('corpsim/' + code + '/state');
+    ref.once('value', function(snap) {
+      var data = snap.val();
+      if (data && data.game && data.game.state) {
+        state = data;
+        if (typeof render === 'function') render();
+        setRoomStatus('Room loaded — syncing with partner', '');
+      } else {
+        pushToFirebase();
+        setRoomStatus('New room created', '');
+      }
+      // Live sync
+      ref.on('value', function(s) {
+        var d = s.val();
+        if (d && d.game && d.game.state && JSON.stringify(d) !== JSON.stringify(state)) {
+          state = d;
+          if (typeof render === 'function') render();
+        }
+      });
+      document.getElementById('roomOverlay').style.display = 'none';
+    }, function(e) {
+      if (btn) btn.disabled = false;
+      setRoomStatus('Error: ' + e.message, 'err');
+    });
+  });
+}
+
+function pushToFirebase() {
+  if (!window._fbDb || !window._roomCode) return;
+  window._fbDb.ref('corpsim/' + window._roomCode + '/state').set(state).catch(function(){});
+}
+
+// Auto-fill saved room code
+(function() {
+  var saved = '';
+  try { saved = localStorage.getItem('corpsim_room') || ''; } catch(e) {}
+  if (saved) { var el = document.getElementById('roomCodeInput'); if (el) el.value = saved; }
+})();
+).value = saved;
+  }
+})();
+</script>
+</body>
+</html>
